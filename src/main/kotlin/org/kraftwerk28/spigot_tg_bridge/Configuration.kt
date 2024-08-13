@@ -20,10 +20,12 @@ class Configuration(plugin: Plugin) : YamlConfiguration() {
     val leaveString: String
     val logDeath: Boolean
     val logPlayerAsleep: Boolean
+    val logPlayerAdvancement: Boolean
     val onlineString: String
     val nobodyOnlineString: String
     val enableIgnAuth: Boolean
     val silentMessages: Boolean?
+    val advancementString: String
 
     // Telegram bot stuff
     val botToken: String
@@ -140,6 +142,8 @@ class Configuration(plugin: Plugin) : YamlConfiguration() {
         leaveString = getString("strings.left", "<i>%username%</i> left.")!!
         logDeath = getBoolean("logPlayerDeath", false)
         logPlayerAsleep = getBoolean("logPlayerAsleep", false)
+        logPlayerAdvancement = getBoolean("logPlayerAdvancement", false)
+        advancementString = getString("strings.advancement", "<i>%username%</i> has mas the advancement <b>%advancement%</b>.")!!
         commands = BotCommands(this)
         // NB: Setting to null, if false, because API expects either `true` or absent parameter
         silentMessages = getBoolean("silentMessages").let { if (!it) null else true }

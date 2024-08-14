@@ -178,13 +178,13 @@ class TgBot(
         if (!config.allowedChats.contains(msg.chat.id)) {
             return
         }
-        val playerList = plugin.server.onlinePlayers
-        val playerStr = plugin.server
-            .onlinePlayers
+        // Filter out players with the 'tg-bridge.silentjoinleave' permission
+        val visiblePlayers = plugin.server.onlinePlayers.filter { !it.hasPermission("tg-bridge.silentjoinleave") }
+        val playerStr = visiblePlayers
             .mapIndexed { i, s -> "${i + 1}. ${s.displayName.fullEscape()}" }
             .joinToString("\n")
         val text =
-            if (playerList.isNotEmpty()) "${config.onlineString}:\n$playerStr"
+            if (visiblePlayers.isNotEmpty()) "${config.onlineString}:\n$playerStr"
             else config.nobodyOnlineString
         api.sendMessage(msg.chat.id, text, replyToMessageId = msg.messageId)
     }

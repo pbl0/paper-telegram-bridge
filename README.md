@@ -89,3 +89,9 @@ This feature is related to [this issue](https://github.com/kraftwerk28/spigot-tg
 | Command | Description |
 |:-------:|:------------|
 | `tgbridge_reload` | Reload plugin configuration w/o need to stop the server. Works only through server console |
+
+## Permissions
+
+|         Permission          | Description                                                                                                                           |
+| :-------------------------: | :------------------------------------------------------------------------------------------------------------------------------------ |
+| `tg-bridge.silentjoinleave` | When set to **true** the bot won't send join and leave messages for that player. It will also be hidden from the **/online** command. |

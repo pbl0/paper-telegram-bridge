@@ -25,7 +25,10 @@ class EventHandler(
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
         if (!config.logJoinLeave) return
-        val username = event.player.displayName.fullEscape()
+        val player = event.player
+        val hasPermission = player.hasPermission("tg-bridge.silentjoinleave")
+        if (hasPermission) return
+        val username = player.displayName.fullEscape()
         val text = config.joinString.replace("%username%", username)
         sendMessage(text)
     }
@@ -33,6 +36,9 @@ class EventHandler(
     @EventHandler
     fun onPlayerLeave(event: PlayerQuitEvent) {
         if (!config.logJoinLeave) return
+        val player = event.player
+        val hasPermission = player.hasPermission("tg-bridge.silentjoinleave")
+        if (hasPermission) return
         val username = event.player.displayName.fullEscape()
         val text = config.leaveString.replace("%username%", username)
         sendMessage(text)

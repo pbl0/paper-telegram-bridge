@@ -39,7 +39,7 @@ class EventHandler(
         val player = event.player
         val hasPermission = player.hasPermission("tg-bridge.silentjoinleave")
         if (hasPermission) return
-        val username = event.player.displayName.fullEscape()
+        val username = player.displayName.fullEscape()
         val text = config.leaveString.replace("%username%", username)
         sendMessage(text)
     }
@@ -47,6 +47,8 @@ class EventHandler(
     @EventHandler
     fun onPlayerDied(event: PlayerDeathEvent) {
         if (!config.logDeath) return
+        val hasPermission = event.entity.hasPermission("tg-bridge.silentjoinleave")
+        if (hasPermission) return
         event.deathMessage?.let {
             val username = event.entity.displayName.fullEscape()
             val text = it.replace(username, "<i>$username</i>")
@@ -57,9 +59,12 @@ class EventHandler(
     @EventHandler
     fun onPlayerAsleep(event: PlayerBedEnterEvent) {
         if (!config.logPlayerAsleep) return
+        val player = event.player
+        val hasPermission = player.hasPermission("tg-bridge.silentjoinleave")
+        if (hasPermission) return
         if (event.bedEnterResult != PlayerBedEnterEvent.BedEnterResult.OK)
             return
-        val text = "<i>${event.player.displayName}</i> fell asleep."
+        val text = "<i>${player.displayName}</i> fell asleep."
         sendMessage(text)
     }
 

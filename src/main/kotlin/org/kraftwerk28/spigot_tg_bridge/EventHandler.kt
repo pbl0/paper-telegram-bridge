@@ -1,5 +1,8 @@
 package org.kraftwerk28.spigot_tg_bridge
 
+import java.io.InputStream
+
+import org.json.JSONArray
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
@@ -7,6 +10,9 @@ import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerBedEnterEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.event.player.PlayerAdvancementDoneEvent
+
+import org.kraftwerk28.spigot_tg_bridge.Constants as C
 
 class EventHandler(
     private val plugin: Plugin,
@@ -70,5 +76,42 @@ class EventHandler(
 
     private fun sendMessage(text: String, username: String? = null) = plugin.launch {
         tgBot.sendMessageToTelegram(text, username)
+    }
+
+
+    @EventHandler
+    fun onPlayerAdvancementDone(event: PlayerAdvancementDoneEvent) {
+        if (!config.logPlayerAdvancement) return
+
+        val advancementKey = event.advancement.key
+        // Filter out recipes advancements
+        if (advancementKey.toString().startsWith("minecraft:recipes") return
+
+        // ! Surely there is a better way to do this...
+        val allAdvancements = loadAchievementsFromResource("/${C.advancementsFilename}")
+        val displayTitle = getDisplayTitleByKey(advancementKey.key, allAdvancements) as String
+        val username = event.player.displayName.fullEscape()
+
+        val message = config.advancementString.replace("%username%", username).replace("%advancement%", displayTitle)
+        sendMessage(message)
+    }
+
+
+    private fun loadAchievementsFromResource(resourcePath: String): List<Advancement> {
+        val inputStream: InputStream = this::class.java.getResourceAsStream(resourcePath)
+        val json = inputStream.bufferedReader().use { it.readText() }
+        val jsonArray = JSONArray(json)
+        val advancements = mutableListOf<Advancement>()
+        for (i in 0 until jsonArray.length()) {
+            val jsonObject = jsonArray.getJSONObject(i)
+            val displayTitle = jsonObject.getString("displayTitle")
+            val key = jsonObject.getString("key")
+            advancements.add(Advancement(displayTitle, key))
+        }
+        return advancements
+    }
+
+    private fun getDisplayTitleByKey(key: String, advancementes: List<Advancement>): String? {
+        return advancementes.find { it.key == key }?.displayTitle
     }
 }

@@ -2,6 +2,7 @@ package org.kraftwerk28.spigot_tg_bridge
 
 object Constants {
     const val configFilename = "config.yml"
+    const val advancementsFilename = "advancements.json"
     object WARN {
         const val noConfigWarning = "No config file found! Writing default config to config.yml."
         const val noToken = "Bot token must be defined."

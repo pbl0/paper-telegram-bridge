@@ -85,7 +85,7 @@ class EventHandler(
 
         val advancementKey = event.advancement.key
         // Filter out recipes advancements
-        if (advancementKey.toString().startsWith("minecraft:recipes") return
+        if (advancementKey.toString().startsWith("minecraft:recipes")) return
 
         // ! Surely there is a better way to do this...
         val allAdvancements = loadAchievementsFromResource("/${C.advancementsFilename}")

@@ -143,7 +143,7 @@ class Configuration(plugin: Plugin) : YamlConfiguration() {
         logDeath = getBoolean("logPlayerDeath", false)
         logPlayerAsleep = getBoolean("logPlayerAsleep", false)
         logPlayerAdvancement = getBoolean("logPlayerAdvancement", false)
-        advancementString = getString("strings.advancement", "<i>%username%</i> has mas the advancement <b>%advancement%</b>.")!!
+        advancementString = getString("strings.advancement", "<i>%username%</i> has made the advancement <b>%advancement%</b>.")!!
         commands = BotCommands(this)
         // NB: Setting to null, if false, because API expects either `true` or absent parameter
         silentMessages = getBoolean("silentMessages").let { if (!it) null else true }

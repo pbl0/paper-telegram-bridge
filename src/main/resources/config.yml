@@ -17,7 +17,7 @@ strings:
   nobodyOnline: "<b>Nobody online...</b>"
   joined: "<i>%username%</i> joined."
   left: "<i>%username%</i> left."
-  advancement: "<i>%username%</i> has mas the advancement <b>%advancement%</b>."
+  advancement: "<i>%username%</i> has made the advancement <b>%advancement%</b>."
 commands:
   time: "time"
   online: "online"

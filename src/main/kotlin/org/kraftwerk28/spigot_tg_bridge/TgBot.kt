@@ -11,6 +11,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.time.Duration
 import org.kraftwerk28.spigot_tg_bridge.Constants as C
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.File
 
 typealias CmdHandler = suspend (HandlerContext) -> Unit
 
@@ -262,6 +266,23 @@ class TgBot(
         config.allowedChats.forEach { chatId ->
             try {
                 api.sendMessage(chatId, formatted, disableNotification = config.silentMessages)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    suspend fun sendPhotoToTelegram(file: File, caption: String? = null) {
+        val requestBody = RequestBody.create("image/png".toMediaTypeOrNull(), file)
+        val photoPart = MultipartBody.Part.createFormData("photo", file.name, requestBody)
+        config.allowedChats.forEach { chatId ->
+            try {
+                api.sendPhoto(
+                    chatId = chatId,
+                    photo = photoPart,
+                    caption = caption,
+                    disableNotification = config.silentMessages
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
             }

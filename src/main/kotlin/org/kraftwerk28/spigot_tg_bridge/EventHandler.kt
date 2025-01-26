@@ -13,6 +13,8 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerAdvancementDoneEvent
 
 import org.kraftwerk28.spigot_tg_bridge.Constants as C
+import org.kraftwerk28.spigot_tg_bridge.InventoryRenderer
+
 
 class EventHandler(
     private val plugin: Plugin,
@@ -23,7 +25,15 @@ class EventHandler(
     @EventHandler
     fun onPlayerChat(event: AsyncPlayerChatEvent) {
         if (!config.logFromMCtoTG || event.isCancelled) return
-        event.run {
+        val player = event.player
+        val message = event.message
+    
+        if (message.contains("[inv]")) {
+            plugin.launch {
+                val inventoryImage = InventoryRenderer.renderInventoryToFile(player.inventory, "inventory.png")
+                tgBot.sendPhotoToTelegram(inventoryImage, "${player.displayName}'s Inventory")
+            }
+        } else {
             sendMessage(message, player.displayName)
         }
     }

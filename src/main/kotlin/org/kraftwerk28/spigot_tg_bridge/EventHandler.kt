@@ -31,7 +31,19 @@ class EventHandler(
         if (message.contains("[inv]")) {
             plugin.launch {
                 val inventoryImage = InventoryRenderer.renderInventoryToFile(player.inventory, "inventory.png")
-                tgBot.sendPhotoToTelegram(inventoryImage, "${player.displayName}'s Inventory")
+                val caption = "${player.displayName}: [${player.displayName}’s Inventory]"
+                tgBot.sendPhotoToTelegram(inventoryImage, caption)
+            }
+        } else if(message.contains("[item]")){
+            plugin.launch {
+                val item = player.inventory.itemInMainHand
+                val (itemImage, itemName) = ItemRenderer.renderItemToFile(item, "item.png")
+                val name = itemName.substringBefore('(').trim()
+                var amountSuffix = ""
+                if (item.amount > 1){
+                    amountSuffix = " x ${item.amount}"
+                }
+                tgBot.sendPhotoToTelegram(itemImage, "${player.displayName}: [$name$amountSuffix]")
             }
         } else {
             sendMessage(message, player.displayName)

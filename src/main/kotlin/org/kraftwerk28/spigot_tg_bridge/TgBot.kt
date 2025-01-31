@@ -15,6 +15,8 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
+import retrofit2.HttpException
+
 
 typealias CmdHandler = suspend (HandlerContext) -> Unit
 
@@ -280,11 +282,13 @@ class TgBot(
                 api.sendPhoto(
                     chatId = chatId,
                     photo = photoPart,
-                    caption = caption,
+                    caption = caption ?: "",
                     disableNotification = config.silentMessages
                 )
-            } catch (e: Exception) {
-                e.printStackTrace()
+            } catch (e: HttpException) {
+                // e.printStackTrace()
+                val errorBody = e.response()?.errorBody()?.string()
+                println("Telegram API error: $errorBody")
             }
         }
     }

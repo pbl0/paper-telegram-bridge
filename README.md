@@ -1,5 +1,7 @@
 # Paper <-> Telegram bridge plugin
 
+A fork from [spigot-tg-bridge](https://github.com/kraftwerk28/spigot-tg-bridge) with some new features. 
+
 ### This plugin will send chat messages from Minecraft to Telegram, and from Telegram to Minecraft.
 
 ## How to use:
@@ -59,7 +61,6 @@
 |       apiOrigin        | Use different API endpoint for the bot                                                           |        `string`        | :x: | https://api.telegram.org |
 |   disableConfigWatch   | Do not watch the config for changes                                                              |        `string`        | :x: | false                    |
 
-
 ## Telegram bot commands:
 
 Commands are customizeable through config. If command doesn't exist in config, it will be disabled
@@ -96,3 +97,11 @@ This feature is related to [this issue](https://github.com/kraftwerk28/spigot-tg
 |         Permission          | Description                                                                                                                           |
 | :-------------------------: | :------------------------------------------------------------------------------------------------------------------------------------ |
 | `tg-bridge.silentjoinleave` | When set to **true** the bot won't send join and leave messages for that player. It will also be hidden from the **/online** command. |
+
+
+## InteractiveChat-like integration
+
+Similar behaviour as InteractiveChat plugin which is not a dependency as it can work standalone.
+Commands implented:
+- [inv]
+- [item]

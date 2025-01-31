@@ -1,4 +1,4 @@
-# Spigot <-> Telegram bridge plugin
+# Paper <-> Telegram bridge plugin
 
 ### This plugin will send chat messages from Minecraft to Telegram, and from Telegram to Minecraft.
 
@@ -10,7 +10,7 @@
 
 3. Next, you need to tell plugin about your new bot. You can either:
     - Run Spigot server, plugin will log `"No config file found! Saving default one."`. After that, stop server and proceed to 4th step.
-    - Copy [config.yml](https://raw.githubusercontent.com/kraftwerk28/spigot-tg-bridge/master/src/main/resources/config.yml) to `plugins/SpigotTGBridge/` in your server directory.
+    - Copy [config.yml](https://raw.githubusercontent.com/pbl0/paper-telegram-bridge/master/src/main/resources/config.yml) to `plugins/SpigotTGBridge/` in your server directory.
 
 4. A `config.yml` is just a [valid YAML](https://en.wikipedia.org/wiki/YAML) file, alternative for JSON, but more human-readable.
    Now, take bot's __token__ which you got in 2nd step and paste them into `config.yml`, so it looks like this:
@@ -19,7 +19,7 @@
    # other configuration values...
    ```
 
-5. Run spigot server.
+5. Run Paper server.
 
 6. Add you bot to chats, where you plan to use it. In each of them, run `/chat_id` command. The bot should respond and give special value - __chat id__. Now, open `config.yml` and paste this ID under `chats` section, so it will look like this:
     ```yaml
@@ -75,7 +75,7 @@ Commands are customizeable through config. If command doesn't exist in config, i
 
 ```
 +--------+ >--minecraftMessageFormat(message)-> +--------------+
-| Spigot |                                      | Telegram bot |
+| Paper |                                      | Telegram bot |
 +--------+ <--telegramMessageFormat(message)--< +--------------+
 ```
 

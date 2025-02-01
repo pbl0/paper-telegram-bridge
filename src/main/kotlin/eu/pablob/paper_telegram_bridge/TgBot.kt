@@ -1,4 +1,4 @@
-package org.kraftwerk28.spigot_tg_bridge
+package eu.pablob.paper_telegram_bridge
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -10,7 +10,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.time.Duration
-import org.kraftwerk28.spigot_tg_bridge.Constants as C
+import eu.pablob.paper_telegram_bridge.Constants as C
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody

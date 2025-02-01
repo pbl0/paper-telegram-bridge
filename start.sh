@@ -1,4 +1,5 @@
 #!/bin/bash
+# Script that builds and moves the plugin to my plugins/ directory and it starts the server with podman.
 
 # Build the project with Gradle
 if ! gradle; then
@@ -36,5 +37,5 @@ podman run \
         -p 4321:8080 \
         -p 24454:24454/udp \
         -p 19132:19132/udp \
-        -e SPIGET_RESOURCES="28140,10079,69584,2124,60088,59773,73638,93051,62325,47136,6245,80279,34315,88135" \
+        -e SPIGET_RESOURCES="28140,10079,69584,2124,60088,59773,73638,93051,62325,47136,6245,80279,88135" \
         -e EULA=TRUE docker.io/itzg/minecraft-server

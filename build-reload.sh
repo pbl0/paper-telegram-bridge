@@ -1,4 +1,5 @@
 #!/bin/bash
+# Script that builds and moves the plugin to my plugins/ directory and reloads the plugin with plugmanX command.
 
 # Build the project with Gradle
 if ! gradle; then

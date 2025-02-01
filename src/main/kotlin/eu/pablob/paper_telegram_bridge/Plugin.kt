@@ -1,9 +1,9 @@
-package org.kraftwerk28.spigot_tg_bridge
+package eu.pablob.paper_telegram_bridge
 
 import net.kyori.adventure.text.Component
 import org.bukkit.event.HandlerList
 import java.lang.Exception
-import org.kraftwerk28.spigot_tg_bridge.Constants as C
+import eu.pablob.paper_telegram_bridge.Constants as C
 
 class Plugin : AsyncJavaPlugin() {
     private var tgBot: TgBot? = null

@@ -1,4 +1,4 @@
-package org.kraftwerk28.spigot_tg_bridge
+package eu.pablob.paper_telegram_bridge
 
 object Constants {
     const val CONFIG_FILENAME = "config.yml"

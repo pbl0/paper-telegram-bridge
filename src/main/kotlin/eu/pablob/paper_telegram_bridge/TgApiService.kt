@@ -1,4 +1,4 @@
-package org.kraftwerk28.spigot_tg_bridge
+package eu.pablob.paper_telegram_bridge
 
 import retrofit2.http.Body
 import retrofit2.http.GET

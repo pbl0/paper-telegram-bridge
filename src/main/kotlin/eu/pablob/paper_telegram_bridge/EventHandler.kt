@@ -1,4 +1,4 @@
-package org.kraftwerk28.spigot_tg_bridge
+package eu.pablob.paper_telegram_bridge
 
 import io.papermc.paper.event.player.AsyncChatEvent
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
@@ -11,7 +11,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.*
 
-import org.kraftwerk28.spigot_tg_bridge.Constants as C
+import eu.pablob.paper_telegram_bridge.Constants as C
 
 
 class EventHandler(
@@ -94,7 +94,7 @@ class EventHandler(
         // Filter out recipes advancements
         if (advancementKey.toString().startsWith("minecraft:recipes")) return
 
-        // ! Surely there is a better way to do this...
+        // TODO: Surely there is a better way to do this...
         val allAdvancements = loadAchievementsFromResource()
         val displayTitle = getDisplayTitleByKey(advancementKey.key, allAdvancements) as String
         val username = event.player.playerProfile.name.toString().fullEscape()
@@ -125,8 +125,14 @@ class EventHandler(
 
     private fun getLogInventory(message: String, player: Player) {
         if (!config.logInventory) return
-        val userMessageBefore = message.substringBefore("<")
-        val userMessageAfter = message.substringAfter(">")
+        var userMessageBefore = message.substringBefore("[")
+        var userMessageAfter = message.substringAfter("]")
+
+        // Handle if InteractiveChat plugin is installed on the server.
+        if (message.contains("<") && message.contains(">")) {
+            userMessageBefore = message.substringBefore("<")
+            userMessageAfter = message.substringAfter(">")
+        }
         if (message.lowercase().contains("[inv]")) {
             plugin.launch {
                 val inventoryImage = InventoryRenderer.renderInventoryToFile(player.inventory, "inventory.png")

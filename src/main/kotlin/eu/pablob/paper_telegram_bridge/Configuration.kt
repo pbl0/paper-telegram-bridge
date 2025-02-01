@@ -1,4 +1,4 @@
-package org.kraftwerk28.spigot_tg_bridge
+package eu.pablob.paper_telegram_bridge
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runInterruptible
@@ -6,7 +6,7 @@ import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
 import java.nio.file.FileSystems
 import java.nio.file.StandardWatchEventKinds
-import org.kraftwerk28.spigot_tg_bridge.Constants as C
+import eu.pablob.paper_telegram_bridge.Constants as C
 
 class Configuration(plugin: Plugin) : YamlConfiguration() {
     val isEnabled: Boolean

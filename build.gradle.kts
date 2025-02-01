@@ -30,7 +30,6 @@ version = pluginVersion as Any
 
 repositories {
     mavenCentral()
-    maven(url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     maven(url = "https://oss.sonatype.org/content/repositories/snapshots/")
     maven (url = "https://repo.papermc.io/repository/maven-public/")
 }

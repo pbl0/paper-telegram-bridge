@@ -2,6 +2,8 @@
 
 A fork from [spigot-tg-bridge](https://github.com/kraftwerk28/spigot-tg-bridge) with some new features.
 
+![image](https://github.com/user-attachments/assets/1a6f61c0-9563-49c6-8cf6-7658fbd4c005)
+
 ### This plugin will send chat messages from Minecraft to Telegram, and from Telegram to Minecraft.
 
 ## How to use:

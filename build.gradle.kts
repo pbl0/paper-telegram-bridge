@@ -52,16 +52,8 @@ defaultTasks("shadowJar")
 tasks {
     named<ShadowJar>("shadowJar") {
         archiveFileName.set(
-            "spigot-tg-bridge-$paperApiVersion-v$pluginVersion.jar"
+            "paper-telegram-bridge-$paperApiVersion-v$pluginVersion.jar"
         )
-    }
-    register<Copy>("copyArtifacts") {
-        val dest = File(
-            System.getenv("HOME"),
-            "projects/minecraft/spigot/spigot-1.18.1/plugins",
-        )
-        from(shadowJar)
-        into(dest)
     }
     register("pack") {
         description = "[For development only!] Build project and copy .jar into servers directory"

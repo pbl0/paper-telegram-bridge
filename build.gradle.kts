@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.yaml.snakeyaml.Yaml
 import java.io.File
@@ -22,7 +23,7 @@ val cfg: Map<String, String> = Yaml().run {
     load(pluginFile)
 }
 val pluginVersion = cfg.get("version")
-val spigotApiVersion = cfg.get("api-version")
+val paperApiVersion = cfg.get("api-version")
 val retrofitVersion = "2.7.1"
 
 group = "org.kraftwerk28"
@@ -37,8 +38,7 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    //compileOnly("org.spigotmc:spigot-api:$spigotApiVersion-R0.1-SNAPSHOT")
-    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:$paperApiVersion-R0.1-SNAPSHOT")
     implementation("com.google.code.gson:gson:2.8.7")
     implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
     implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
@@ -52,7 +52,7 @@ defaultTasks("shadowJar")
 tasks {
     named<ShadowJar>("shadowJar") {
         archiveFileName.set(
-            "spigot-tg-bridge-$spigotApiVersion-v$pluginVersion.jar"
+            "spigot-tg-bridge-$paperApiVersion-v$pluginVersion.jar"
         )
     }
     register<Copy>("copyArtifacts") {
@@ -72,7 +72,9 @@ tasks {
         sourceCompatibility = JavaVersion.VERSION_21.toString()
         targetCompatibility = JavaVersion.VERSION_21.toString()
     }
-    withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "21"
+    withType<KotlinCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_21)
+        }
     }
 }

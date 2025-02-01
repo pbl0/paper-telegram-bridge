@@ -1,6 +1,6 @@
 name: SpigotTGBridge
-version: "0.20.2"
-api-version: "1.15"
+version: "0.21.0"
+api-version: "1.21.4"
 main: org.kraftwerk28.spigot_tg_bridge.Plugin
 description: Telegram <-> Minecraft communication plugin for Spigot.
 commands:

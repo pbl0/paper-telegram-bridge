@@ -1,9 +1,14 @@
-package org.kraftwerk28.spigot_tg_bridge
+package eu.pablob.paper_telegram_bridge
 
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
+import retrofit2.http.Multipart
+import retrofit2.http.Part
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+
 
 interface TgApiService {
     @GET("deleteWebhook")
@@ -33,4 +38,14 @@ interface TgApiService {
     suspend fun setMyCommands(
         @Body commands: SetMyCommands,
     ): TgResponse<Boolean>
+
+    @Multipart
+    @POST("sendPhoto")
+    suspend fun sendPhoto(
+        @Part("chat_id") chatId: Long,
+        @Part photo: MultipartBody.Part,
+        @Part("caption") caption: RequestBody? = null,
+        @Part("reply_to_message_id") replyToMessageId: Long? = null,
+        @Part("disable_notification") disableNotification: Boolean? = null
+    ): TgResponse<Message>
 }

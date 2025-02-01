@@ -1,14 +1,14 @@
-package org.kraftwerk28.spigot_tg_bridge
+package eu.pablob.paper_telegram_bridge
 
+import net.kyori.adventure.text.Component
 import org.bukkit.event.HandlerList
 import java.lang.Exception
-import org.kraftwerk28.spigot_tg_bridge.Constants as C
+import eu.pablob.paper_telegram_bridge.Constants as C
 
 class Plugin : AsyncJavaPlugin() {
     private var tgBot: TgBot? = null
     private var eventHandler: EventHandler? = null
     private var config: Configuration? = null
-    var ignAuth: IgnAuth? = null
 
     override suspend fun onEnableAsync() {
         try {
@@ -25,14 +25,6 @@ class Plugin : AsyncJavaPlugin() {
 
     private suspend fun initializeWithConfig(config: Configuration) {
         if (!config.isEnabled) return
-
-        if (config.enableIgnAuth) {
-            val dbFilePath = dataFolder.resolve("spigot-tg-bridge.sqlite")
-            ignAuth = IgnAuth(
-                fileName = dbFilePath.absolutePath,
-                plugin = this,
-            )
-        }
 
         tgBot?.run { stop() }
         tgBot = TgBot(this, config).also { bot ->
@@ -60,7 +52,6 @@ class Plugin : AsyncJavaPlugin() {
             eventHandler?.let { HandlerList.unregisterAll(it) }
             tgBot?.run { stop() }
             tgBot = null
-            ignAuth?.close()
         }
     }
 
@@ -81,13 +72,13 @@ class Plugin : AsyncJavaPlugin() {
                     replace(C.CHAT_TITLE_PLACEHOLDER, it)
                 } ?: this
             }
-            .also { server.broadcastMessage(it) }
+            .also { server.broadcast(Component.text(it)) }
     }
 
     suspend fun reload() {
         config = Configuration(this).also { config ->
             if (!config.isEnabled) return
-            logger.info(C.INFO.reloading)
+            logger.info(C.INFO.RELOADING)
             eventHandler?.let { HandlerList.unregisterAll(it) }
             tgBot?.run { stop() }
             tgBot = TgBot(this, config).also { bot ->
@@ -96,7 +87,7 @@ class Plugin : AsyncJavaPlugin() {
                     server.pluginManager.registerEvents(it, this)
                 }
             }
-            logger.info(C.INFO.reloadComplete)
+            logger.info(C.INFO.RELOAD_COMPLETE)
         }
     }
 }

@@ -1,10 +1,10 @@
-package org.kraftwerk28.spigot_tg_bridge
+package eu.pablob.paper_telegram_bridge
 
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.command.ConsoleCommandSender
-import org.kraftwerk28.spigot_tg_bridge.Constants as C
+import eu.pablob.paper_telegram_bridge.Constants as C
 
 class CommandHandler(private val plugin: Plugin) : CommandExecutor {
     override fun onCommand(
@@ -19,6 +19,7 @@ class CommandHandler(private val plugin: Plugin) : CommandExecutor {
                 plugin.launch { plugin.reload() }
                 true
             }
+
             else -> false
         }
     }

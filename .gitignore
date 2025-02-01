@@ -26,3 +26,6 @@ build/
 .gradle/
 local.properties
 .idea/
+
+*.code-workspace
+textures

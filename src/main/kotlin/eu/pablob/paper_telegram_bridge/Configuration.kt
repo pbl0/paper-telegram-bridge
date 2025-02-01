@@ -1,4 +1,4 @@
-package org.kraftwerk28.spigot_tg_bridge
+package eu.pablob.paper_telegram_bridge
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runInterruptible
@@ -6,7 +6,7 @@ import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
 import java.nio.file.FileSystems
 import java.nio.file.StandardWatchEventKinds
-import org.kraftwerk28.spigot_tg_bridge.Constants as C
+import eu.pablob.paper_telegram_bridge.Constants as C
 
 class Configuration(plugin: Plugin) : YamlConfiguration() {
     val isEnabled: Boolean
@@ -20,17 +20,19 @@ class Configuration(plugin: Plugin) : YamlConfiguration() {
     val leaveString: String
     val logDeath: Boolean
     val logPlayerAsleep: Boolean
+    val logPlayerAdvancement: Boolean
+    val logInventory: Boolean
     val onlineString: String
     val nobodyOnlineString: String
-    val enableIgnAuth: Boolean
     val silentMessages: Boolean?
+    val advancementString: String
 
     // Telegram bot stuff
     val botToken: String
     val allowedChats: List<Long>
     val logFromTGtoMC: Boolean
-    val allowWebhook: Boolean
-    val webhookConfig: Map<String, Any>?
+    private val allowWebhook: Boolean
+    private val webhookConfig: Map<String, Any>?
     val pollTimeout: Int
     val apiOrigin: String
     val debugHttp: Boolean
@@ -38,12 +40,12 @@ class Configuration(plugin: Plugin) : YamlConfiguration() {
     var commands: BotCommands
 
     init {
-        val cfgFile = File(plugin.dataFolder, C.configFilename)
+        val cfgFile = File(plugin.dataFolder, C.CONFIG_FILENAME)
         if (!cfgFile.exists()) {
             cfgFile.parentFile.mkdirs()
             plugin.saveDefaultConfig()
             // plugin.saveResource(C.configFilename, false);
-            throw Exception(C.WARN.noConfigWarning)
+            throw Exception(C.WARN.NO_CONFIG_WARNING)
         }
 
         load(cfgFile)
@@ -119,9 +121,8 @@ class Configuration(plugin: Plugin) : YamlConfiguration() {
         )!!
         // isEnabled = getBoolean("enable", true)
         allowedChats = getLongList("chats")
-        enableIgnAuth = getBoolean("enableIgnAuth", false)
 
-        botToken = getString("botToken") ?: throw Exception(C.WARN.noToken)
+        botToken = getString("botToken") ?: throw Exception(C.WARN.NO_TOKEN)
         allowWebhook = getBoolean("useWebhook", false)
         @Suppress("unchecked_cast")
         webhookConfig = get("webhookConfig") as Map<String, Any>?
@@ -140,6 +141,10 @@ class Configuration(plugin: Plugin) : YamlConfiguration() {
         leaveString = getString("strings.left", "<i>%username%</i> left.")!!
         logDeath = getBoolean("logPlayerDeath", false)
         logPlayerAsleep = getBoolean("logPlayerAsleep", false)
+        logPlayerAdvancement = getBoolean("logPlayerAdvancement", false)
+        logInventory = getBoolean("logInventory", false)
+        advancementString =
+            getString("strings.advancement", "<i>%username%</i> has made the advancement <b>%advancement%</b>.")!!
         commands = BotCommands(this)
         // NB: Setting to null, if false, because API expects either `true` or absent parameter
         silentMessages = getBoolean("silentMessages").let { if (!it) null else true }

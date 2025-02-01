@@ -112,9 +112,9 @@ This feature is related to [this issue](https://github.com/kraftwerk28/spigot-tg
 |:---------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------|
 | `tg-bridge.silentjoinleave` | When set to **true** the bot won't send join and leave messages for that player. It will also be hidden from the **/online** command. |
 
-## InteractiveChat-like integration
+## InteractiveChat like implementation
 
-Similar behaviour as InteractiveChat plugin which is not a dependency as it can work standalone.
+Similar behavior as InteractiveChat plugin (not a dependency!).
 Commands implemented:
 
 - [inv]

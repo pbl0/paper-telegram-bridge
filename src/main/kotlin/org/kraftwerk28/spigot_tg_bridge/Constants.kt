@@ -1,32 +1,37 @@
 package org.kraftwerk28.spigot_tg_bridge
 
 object Constants {
-    const val configFilename = "config.yml"
-    const val advancementsFilename = "advancements.json"
+    const val CONFIG_FILENAME = "config.yml"
+    const val ADVANCEMENTS_FILENAME = "advancements.json"
+
     object WARN {
-        const val noConfigWarning = "No config file found! Writing default config to config.yml."
-        const val noToken = "Bot token must be defined."
-        const val noUsername = "Bot username must be defined."
+        const val NO_CONFIG_WARNING = "No config file found! Writing default config to config.yml."
+        const val NO_TOKEN = "Bot token must be defined."
     }
+
     object INFO {
-        const val reloading = "Reloading..."
-        const val reloadComplete = "Reload completed."
+        const val RELOADING = "Reloading..."
+        const val RELOAD_COMPLETE = "Reload completed."
     }
-    object TIMES_OF_DAY {
-        const val day = "\uD83C\uDFDE Day"
-        const val sunset = "\uD83C\uDF06 Sunset"
-        const val night = "\uD83C\uDF03 Night"
-        const val sunrise = "\uD83C\uDF05 Sunrise"
+
+    object TimesOfDay {
+        const val DAY = "\uD83C\uDFDE Day"
+        const val SUNSET = "\uD83C\uDF06 Sunset"
+        const val NIGHT = "\uD83C\uDF03 Night"
+        const val SUNRISE = "\uD83C\uDF05 Sunrise"
     }
+
     const val USERNAME_PLACEHOLDER = "%username%"
     const val MESSAGE_TEXT_PLACEHOLDER = "%message%"
     const val CHAT_TITLE_PLACEHOLDER = "%chat%"
+
     object COMMANDS {
         const val PLUGIN_RELOAD = "tgbridge_reload"
     }
-    object COMMAND_DESC {
-        const val timeDesc = "Get time on server"
-        const val onlineDesc = "Get players online"
-        const val chatIDDesc = "Get current chat id"
+
+    object CommandDesc {
+        const val TIME_DESC = "Get time on server"
+        const val ONLINE_DESC = "Get players online"
+        const val CHAT_ID_DESC = "Get current chat id"
     }
 }

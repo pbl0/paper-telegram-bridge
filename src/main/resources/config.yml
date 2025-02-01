@@ -9,6 +9,7 @@ logFromTGtoMC: true
 logPlayerDeath: true
 logPlayerAsleep: false
 logPlayerAdvancement: true
+logInventory: true
 minecraftFormat: "§6§l%username%§r (from §o%chat%§r): §b%message%§r"
 telegramFormat: "<i>%username%</i>: %message%"
 silentMessages: false

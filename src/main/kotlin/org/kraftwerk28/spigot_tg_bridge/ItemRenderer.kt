@@ -1,16 +1,15 @@
 package org.kraftwerk28.spigot_tg_bridge
 
-import org.bukkit.Material
-import org.bukkit.enchantments.Enchantment
+
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.MapMeta
-import org.bukkit.inventory.meta.PotionMeta
 import org.bukkit.inventory.meta.EnchantmentStorageMeta
 import javax.imageio.ImageIO
 import java.awt.image.BufferedImage
 import java.io.File
 import java.awt.Color
 import java.awt.Graphics2D
+import java.util.*
 
 object ItemRenderer {
     private const val WIDTH = 250
@@ -28,7 +27,7 @@ object ItemRenderer {
         val image = BufferedImage(WIDTH, height, BufferedImage.TYPE_INT_ARGB)
         val g = image.createGraphics()
 
-        drawBackground(g, WIDTH, height)
+        drawBackground(g, height)
         drawTexture(g, texture)
         val itemName = drawItemName(g, item)
 
@@ -52,11 +51,11 @@ object ItemRenderer {
     }
 
     private fun loadTexture(item: ItemStack): BufferedImage? {
-        val itemName = item.type.name.lowercase()
-        return when {
-            itemName == "potion" || itemName == "splash_potion" || itemName == "lingering_potion" ->
+        return when (val itemName = item.type.name.lowercase()) {
+            "potion", "splash_potion", "lingering_potion" ->
                 loadPotionTexture(item, this.javaClass) ?: loadAwkwardPotionTexture(this.javaClass)
-            itemName == "filled_map" -> loadMapTexture(this.javaClass)
+
+            "filled_map" -> loadMapTexture(this.javaClass)
             else -> loadItemTexture(itemName, this.javaClass)
         }
     }
@@ -82,11 +81,11 @@ object ItemRenderer {
         return height + MARGIN // Add bottom margin
     }
 
-    private fun drawBackground(g: Graphics2D, width: Int, height: Int) {
+    private fun drawBackground(g: Graphics2D, height: Int) {
         g.color = Color.decode(BACKGROUND_COLOR)
-        g.fillRect(0, 0, width, height)
+        g.fillRect(0, 0, WIDTH, height)
         g.color = Color.decode(BORDER_COLOR)
-        g.fillRect(4, 4, width - 8, height - 8)
+        g.fillRect(4, 4, WIDTH - 8, height - 8)
     }
 
     private fun drawTexture(g: Graphics2D, texture: BufferedImage?) {
@@ -99,11 +98,9 @@ object ItemRenderer {
     }
 
     private fun drawItemName(g: Graphics2D, item: ItemStack): String {
-        val displayName = item.itemMeta?.displayName
-        val fullName = when (val itemMeta = item.itemMeta) {
-            is PotionMeta -> getPotionName(item, itemMeta, displayName)
-            else -> getItemName(item, displayName)
-        }
+        val displayName =
+            PlainTextComponentSerializer.plainText().serialize(item.displayName()).replace("[", "").replace("]", "")
+        val fullName = getItemName(item, displayName)
         val nameColor = determineNameColor(item)
         g.font = MinecraftFontLoader.getFont(16f)
         g.color = nameColor
@@ -111,31 +108,19 @@ object ItemRenderer {
         return fullName
     }
 
-    private fun getPotionName(item: ItemStack, potionMeta: PotionMeta, displayName: String?): String {
-        val basePotionData = potionMeta.basePotionData
-        return if (basePotionData != null) {
-            val potionType = basePotionData.type
-            val potionTypeName = potionType.toString().replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
-            val potionName = when (item.type.name.lowercase()) {
-                "splash_potion" -> "Splash Potion of $potionTypeName"
-                "lingering_potion" -> "Lingering Potion of $potionTypeName"
-                else -> "Potion of $potionTypeName"
-            }
-            if (!displayName.isNullOrEmpty()) "$displayName ($potionName)" else potionName
-        } else {
-            if (!displayName.isNullOrEmpty()) "$displayName (Potion)" else "Potion"
-        }
-    }
-
     private fun getItemName(item: ItemStack, displayName: String?): String {
         val itemTypeName = item.type.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
-        return if (!displayName.isNullOrEmpty()) "$displayName ($itemTypeName)" else itemTypeName
+        return if (!displayName.isNullOrEmpty()) "$displayName" else itemTypeName
     }
 
     private fun determineNameColor(item: ItemStack): Color {
         return when {
             item.itemMeta?.hasEnchants() == true || (item.itemMeta is EnchantmentStorageMeta && (item.itemMeta as EnchantmentStorageMeta).storedEnchants.isNotEmpty()) -> Color.CYAN
-            item.type.name.contains("totem", ignoreCase = true) || item.type.name.contains("book", ignoreCase = true) -> Color.YELLOW
+            item.type.name.contains("totem", ignoreCase = true) || item.type.name.contains(
+                "book",
+                ignoreCase = true
+            ) -> Color.YELLOW
+
             else -> Color.WHITE
         }
     }
@@ -151,7 +136,12 @@ object ItemRenderer {
             g.color = Color.decode(ENCHANTMENT_COLOR)
             var currentYOffset = textYOffset
             enchantments.forEach { (enchantment, level) ->
-                g.drawString("${enchantment.key.key.replace('_', ' ').capitalize()} $level", MARGIN, currentYOffset)
+                g.drawString(
+                    "${
+                        enchantment.key.key.replace('_', ' ')
+                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                    } $level", MARGIN, currentYOffset
+                )
                 currentYOffset += 20
             }
             return currentYOffset // Return the updated Y offset
@@ -163,7 +153,8 @@ object ItemRenderer {
         if (item.itemMeta is org.bukkit.inventory.meta.Damageable && item.type.maxDurability > 0) {
             g.font = MinecraftFontLoader.getFont(14f)
             g.color = Color.WHITE
-            val currentDurability = item.type.maxDurability - (item.itemMeta as org.bukkit.inventory.meta.Damageable).damage
+            val currentDurability =
+                item.type.maxDurability - (item.itemMeta as org.bukkit.inventory.meta.Damageable).damage
             g.drawString("Durability: $currentDurability/${item.type.maxDurability}", MARGIN, textYOffset)
         }
     }
@@ -173,7 +164,7 @@ object ItemRenderer {
             g.font = MinecraftFontLoader.getFont(20f)
             g.color = Color.WHITE
             val stackSize = "x ${item.amount}"
-            val textWidth = g.fontMetrics.stringWidth(stackSize)
+            // val textWidth = g.fontMetrics.stringWidth(stackSize)
             val x = MARGIN + IMAGE_SCALE + 10 // Position to the right of the texture with a small margin
             val y = MARGIN + IMAGE_SCALE - 5 // Slightly higher to align with the texture
             g.drawString(stackSize, x, y)

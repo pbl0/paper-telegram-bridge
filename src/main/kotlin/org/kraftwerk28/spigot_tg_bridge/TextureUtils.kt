@@ -8,7 +8,6 @@ import org.bukkit.inventory.ItemStack
 
 fun loadItemTexture(itemName: String, javaClass: Class<out Any>): BufferedImage? {
     val texturePath = "/textures/minecraft__$itemName.png"
-    println(texturePath)
     val inputStream: InputStream? = javaClass.getResourceAsStream(texturePath)
     return try {
         inputStream?.let {
@@ -27,13 +26,13 @@ fun loadAwkwardPotionTexture(javaClass: Class<out Any>): BufferedImage? {
 fun loadPotionTexture(item: ItemStack, javaClass: Class<out Any>): BufferedImage? {
     val meta = item.itemMeta
     if (meta is PotionMeta) {
-        val potionType = meta.basePotionData?.type?.name?.lowercase()
+        val potionType = meta.basePotionType?.name?.lowercase()
         val potionTexturePath = "potion__$potionType"
         return loadItemTexture(potionTexturePath, javaClass)
     }
     return null
 }
 
-fun loadMapTexture(javaClass: Class<out Any>): BufferedImage?{
+fun loadMapTexture(javaClass: Class<out Any>): BufferedImage? {
     return loadItemTexture("map", javaClass)
 }

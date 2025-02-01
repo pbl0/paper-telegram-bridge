@@ -7,6 +7,7 @@ import retrofit2.http.Query
 import retrofit2.http.Multipart
 import retrofit2.http.Part
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 
 
 interface TgApiService {
@@ -43,8 +44,8 @@ interface TgApiService {
     suspend fun sendPhoto(
         @Part("chat_id") chatId: Long,
         @Part photo: MultipartBody.Part,
-        @Part("caption") caption: String? = null,
+        @Part("caption") caption: RequestBody? = null,
         @Part("reply_to_message_id") replyToMessageId: Long? = null,
-        @Part("disable_notification") disableNotification: Boolean? = null,
+        @Part("disable_notification") disableNotification: Boolean? = null
     ): TgResponse<Message>
 }

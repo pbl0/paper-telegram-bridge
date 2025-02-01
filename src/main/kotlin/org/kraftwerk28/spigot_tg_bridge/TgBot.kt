@@ -13,7 +13,8 @@ import java.time.Duration
 import org.kraftwerk28.spigot_tg_bridge.Constants as C
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import retrofit2.HttpException
 
@@ -60,9 +61,6 @@ class TgBot(
             online to ::onlineHandler,
             time to ::timeHandler,
             chatID to ::chatIdHandler,
-            // TODO:
-            // linkIgn to ::linkIgnHandler,
-            // getAllLinked to ::getLinkedUsersHandler,
         )
     }
 
@@ -73,8 +71,8 @@ class TgBot(
         commandRegex = """^/(\w+)@${me!!.username}(?:\s+(.+))?$""".toRegex()
         val commands = config.commands.run { listOf(time, online, chatID) }
             .zip(
-                C.COMMAND_DESC.run {
-                    listOf(timeDesc, onlineDesc, chatIDDesc)
+                C.CommandDesc.run {
+                    listOf(TIME_DESC, ONLINE_DESC, CHAT_ID_DESC)
                 }
             )
             .map { BotCommand(it.first!!, it.second) }
@@ -167,12 +165,12 @@ class TgBot(
         }
         // TODO: handle multiple worlds
         val time = plugin.server.worlds.first().time
-        val text = C.TIMES_OF_DAY.run {
+        val text = C.TimesOfDay.run {
             when {
-                time <= 12000 -> day
-                time <= 13800 -> sunset
-                time <= 22200 -> night
-                time <= 24000 -> sunrise
+                time <= 12000 -> DAY
+                time <= 13800 -> SUNSET
+                time <= 22200 -> NIGHT
+                time <= 24000 -> SUNRISE
                 else -> ""
             }
         } + " ($time)"
@@ -187,7 +185,7 @@ class TgBot(
         // Filter out players with the 'tg-bridge.silentjoinleave' permission
         val visiblePlayers = plugin.server.onlinePlayers.filter { !it.hasPermission("tg-bridge.silentjoinleave") }
         val playerStr = visiblePlayers
-            .mapIndexed { i, s -> "${i + 1}. ${s.displayName.fullEscape()}" }
+            .mapIndexed { i, s -> "${i + 1}. ${s.playerProfile.name?.fullEscape()}" }
             .joinToString("\n")
         val text =
             if (visiblePlayers.isNotEmpty()) "${config.onlineString}:\n$playerStr"
@@ -211,43 +209,8 @@ class TgBot(
         api.sendMessage(chatId, text, replyToMessageId = msg.messageId)
     }
 
-    private suspend fun linkIgnHandler(ctx: HandlerContext) {
-        val tgUser = ctx.message!!.from!!
-        val mcUuid = getMinecraftUuidByUsername(ctx.message.text!!)
-        if (mcUuid == null || ctx.commandArgs.isEmpty()) {
-            // Respond...
-            return
-        }
-        val (minecraftIgn) = ctx.commandArgs
-        val linked = plugin.ignAuth?.linkUser(
-            tgId = tgUser.id,
-            tgFirstName = tgUser.firstName,
-            tgLastName = tgUser.lastName,
-            minecraftUsername = minecraftIgn,
-            minecraftUuid = mcUuid,
-        ) ?: false
-        if (linked) {
-            // TODO
-        }
-    }
-
-    private suspend fun getLinkedUsersHandler(ctx: HandlerContext) {
-        val linkedUsers = plugin.ignAuth?.run {
-            getAllLinkedUsers()
-        } ?: listOf()
-        if (linkedUsers.isEmpty()) {
-            api.sendMessage(ctx.message!!.chat.id, "No linked users.")
-        } else {
-            val text = "<b>Linked users:</b>\n" +
-                    linkedUsers.mapIndexed { i, dbUser ->
-                        "${i + 1}. ${dbUser.fullName()}"
-                    }.joinToString("\n")
-            api.sendMessage(ctx.message!!.chat.id, text)
-        }
-    }
-
     private fun onTextHandler(
-        @Suppress("unused_parameter") ctx: HandlerContext
+        ctx: HandlerContext
     ) {
         val msg = ctx.message!!
         if (!config.logFromTGtoMC || msg.from == null)
@@ -274,15 +237,16 @@ class TgBot(
         }
     }
 
-    suspend fun sendPhotoToTelegram(file: File, caption: String? = null) {
-        val requestBody = RequestBody.create("image/png".toMediaTypeOrNull(), file)
+    suspend fun sendPhotoToTelegram(file: File, caption: String) {
+        val requestBody = file.asRequestBody("image/png".toMediaTypeOrNull())
         val photoPart = MultipartBody.Part.createFormData("photo", file.name, requestBody)
+        val text = caption.toRequestBody("text/plain".toMediaTypeOrNull())
         config.allowedChats.forEach { chatId ->
             try {
                 api.sendPhoto(
                     chatId = chatId,
                     photo = photoPart,
-                    caption = caption ?: "",
+                    caption = text,
                     disableNotification = config.silentMessages
                 )
             } catch (e: HttpException) {

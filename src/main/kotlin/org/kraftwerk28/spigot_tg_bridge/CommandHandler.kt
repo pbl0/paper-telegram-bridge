@@ -19,6 +19,7 @@ class CommandHandler(private val plugin: Plugin) : CommandExecutor {
                 plugin.launch { plugin.reload() }
                 true
             }
+
             else -> false
         }
     }

@@ -1,19 +1,17 @@
 package org.kraftwerk28.spigot_tg_bridge
 
+import io.papermc.paper.event.player.AsyncChatEvent
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+import org.bukkit.entity.Player
 import java.io.InputStream
 
 import org.json.JSONArray
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
-import org.bukkit.event.player.AsyncPlayerChatEvent
-import org.bukkit.event.player.PlayerBedEnterEvent
-import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.event.player.PlayerAdvancementDoneEvent
+import org.bukkit.event.player.*
 
 import org.kraftwerk28.spigot_tg_bridge.Constants as C
-import org.kraftwerk28.spigot_tg_bridge.InventoryRenderer
 
 
 class EventHandler(
@@ -23,30 +21,17 @@ class EventHandler(
 ) : Listener {
 
     @EventHandler
-    fun onPlayerChat(event: AsyncPlayerChatEvent) {
+    fun onPlayerChat(event: AsyncChatEvent) {
         if (!config.logFromMCtoTG || event.isCancelled) return
+
         val player = event.player
-        val message = event.message
-    
-        if (message.contains("[inv]")) {
-            plugin.launch {
-                val inventoryImage = InventoryRenderer.renderInventoryToFile(player.inventory, "inventory.png")
-                val caption = "${player.displayName}: [${player.displayName}’s Inventory]"
-                tgBot.sendPhotoToTelegram(inventoryImage, caption)
-            }
-        } else if(message.contains("[item]")){
-            plugin.launch {
-                val item = player.inventory.itemInMainHand
-                val (itemImage, itemName) = ItemRenderer.renderItemToFile(item, "item.png")
-                val name = itemName.substringBefore('(').trim()
-                var amountSuffix = ""
-                if (item.amount > 1){
-                    amountSuffix = " x ${item.amount}"
-                }
-                tgBot.sendPhotoToTelegram(itemImage, "${player.displayName}: [$name$amountSuffix]")
-            }
+        val message = PlainTextComponentSerializer.plainText().serialize(event.message())
+
+        // Inventory
+        if (message.contains("[")) {
+            getLogInventory(message, player)
         } else {
-            sendMessage(message, player.displayName)
+            sendMessage(message, player.name)
         }
     }
 
@@ -56,7 +41,7 @@ class EventHandler(
         val player = event.player
         val hasPermission = player.hasPermission("tg-bridge.silentjoinleave")
         if (hasPermission) return
-        val username = player.displayName.fullEscape()
+        val username = player.playerProfile.name.toString()
         val text = config.joinString.replace("%username%", username)
         sendMessage(text)
     }
@@ -67,7 +52,7 @@ class EventHandler(
         val player = event.player
         val hasPermission = player.hasPermission("tg-bridge.silentjoinleave")
         if (hasPermission) return
-        val username = player.displayName.fullEscape()
+        val username = player.playerProfile.name.toString().fullEscape()
         val text = config.leaveString.replace("%username%", username)
         sendMessage(text)
     }
@@ -77,8 +62,8 @@ class EventHandler(
         if (!config.logDeath) return
         val hasPermission = event.entity.hasPermission("tg-bridge.silentjoinleave")
         if (hasPermission) return
-        event.deathMessage?.let {
-            val username = event.entity.displayName.fullEscape()
+        event.deathMessage().toString().let {
+            val username = event.entity.playerProfile.name.toString().fullEscape()
             val text = it.replace(username, "<i>$username</i>")
             sendMessage(text)
         }
@@ -92,7 +77,7 @@ class EventHandler(
         if (hasPermission) return
         if (event.bedEnterResult != PlayerBedEnterEvent.BedEnterResult.OK)
             return
-        val text = "<i>${player.displayName}</i> fell asleep."
+        val text = "<i>${player.playerProfile.name.toString()}</i> fell asleep."
         sendMessage(text)
     }
 
@@ -110,18 +95,19 @@ class EventHandler(
         if (advancementKey.toString().startsWith("minecraft:recipes")) return
 
         // ! Surely there is a better way to do this...
-        val allAdvancements = loadAchievementsFromResource("/${C.advancementsFilename}")
+        val allAdvancements = loadAchievementsFromResource()
         val displayTitle = getDisplayTitleByKey(advancementKey.key, allAdvancements) as String
-        val username = event.player.displayName.fullEscape()
+        val username = event.player.playerProfile.name.toString().fullEscape()
 
         val message = config.advancementString.replace("%username%", username).replace("%advancement%", displayTitle)
         sendMessage(message)
     }
 
 
-    private fun loadAchievementsFromResource(resourcePath: String): List<Advancement> {
-        val inputStream: InputStream = this::class.java.getResourceAsStream(resourcePath)
-        val json = inputStream.bufferedReader().use { it.readText() }
+    private fun loadAchievementsFromResource(): List<Advancement> {
+        val resourcePath = "/${C.ADVANCEMENTS_FILENAME}"
+        val inputStream: InputStream? = this::class.java.getResourceAsStream(resourcePath)
+        val json = inputStream!!.bufferedReader().use { it.readText() }
         val jsonArray = JSONArray(json)
         val advancements = mutableListOf<Advancement>()
         for (i in 0 until jsonArray.length()) {
@@ -133,7 +119,35 @@ class EventHandler(
         return advancements
     }
 
-    private fun getDisplayTitleByKey(key: String, advancementes: List<Advancement>): String? {
-        return advancementes.find { it.key == key }?.displayTitle
+    private fun getDisplayTitleByKey(key: String, advancements: List<Advancement>): String? {
+        return advancements.find { it.key == key }?.displayTitle
+    }
+
+    private fun getLogInventory(message: String, player: Player) {
+        if (!config.logInventory) return
+        val userMessageBefore = message.substringBefore("<")
+        val userMessageAfter = message.substringAfter(">")
+        if (message.lowercase().contains("[inv]")) {
+            plugin.launch {
+                val inventoryImage = InventoryRenderer.renderInventoryToFile(player.inventory, "inventory.png")
+                val caption =
+                    "${player.playerProfile.name}: $userMessageBefore[${player.playerProfile.name}’s Inventory]$userMessageAfter"
+                tgBot.sendPhotoToTelegram(inventoryImage, caption)
+            }
+        } else if (message.lowercase().contains("[item]")) {
+            plugin.launch {
+                val item = player.inventory.itemInMainHand
+                val (itemImage, itemName) = ItemRenderer.renderItemToFile(item, "item.png")
+                val name = itemName.substringBefore('(').trim()
+                var amountSuffix = ""
+                if (item.amount > 1) {
+                    amountSuffix = " x ${item.amount}"
+                }
+                tgBot.sendPhotoToTelegram(
+                    itemImage,
+                    "${player.playerProfile.name}: $userMessageBefore[$name$amountSuffix]$userMessageAfter"
+                )
+            }
+        }
     }
 }

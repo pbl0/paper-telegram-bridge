@@ -9,8 +9,6 @@ import org.bukkit.Material
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
-// import java.awt.RenderingHints
-
 object InventoryRenderer {
 
     private const val SLOT_SIZE = 64 // Size of each slot in pixels
@@ -40,14 +38,14 @@ object InventoryRenderer {
                 if (row == 0 && col >= 5) continue // Skip slots beyond the 5th in the top row
 
                 val index =
-                        when (row) {
-                            0 -> 36 + col // First row (top row): Armor and Offhand
-                            1 -> 9 + col // Second row: First row of inventory *
-                            2 -> 18 + col // Third row: Middle row of inventory
-                            3 -> 27 + col // Fourth row: Bottom row of inventory *
-                            4 -> col // Fifth row (bottom row): Hotbar
-                            else -> col // Fallback (should not happen)
-                        }
+                    when (row) {
+                        0 -> 36 + col // First row (top row): Armor and Offhand
+                        1 -> 9 + col // Second row: First row of inventory *
+                        2 -> 18 + col // Third row: Middle row of inventory
+                        3 -> 27 + col // Fourth row: Bottom row of inventory *
+                        4 -> col // Fifth row (bottom row): Hotbar
+                        else -> col // Fallback (should not happen)
+                    }
 
                 var y = row * (SLOT_SIZE + PADDING) + BORDER_SIZE
 
@@ -85,22 +83,20 @@ object InventoryRenderer {
     }
 
     private fun drawItem(g: Graphics2D, item: ItemStack, x: Int, y: Int) {
-        // Enable anti-aliasing for smoother edges
-        // g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-        // g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-        // RenderingHints.VALUE_INTERPOLATION_BICUBIC)
-        // g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
-
         val itemName = item.type.name.lowercase()
         if (itemName == "potion") {
             // Handle potions differently
             val potionTexture =
-                    loadPotionTexture(item, this.javaClass)
-                            ?: loadAwkwardPotionTexture(this.javaClass)
+                loadPotionTexture(item, this.javaClass)
+                    ?: loadAwkwardPotionTexture(this.javaClass)
             if (potionTexture != null) {
                 g.drawImage(potionTexture, x + 8, y + 8, SLOT_SIZE - 16, SLOT_SIZE - 16, null)
             }
-        } else {
+        } else if (itemName.contains("map")){
+            // Handle maps
+            g.drawImage(loadMapTexture(this.javaClass), x + 8, y + 8, SLOT_SIZE - 16, SLOT_SIZE - 16, null)
+        }
+        else {
             // Handle non-potion items
             val texture = loadItemTexture(itemName, this.javaClass)
             if (texture != null) {

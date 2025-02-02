@@ -69,6 +69,7 @@ Download from [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge), [m
 |     logPlayerDeath     | If true, plugin will send message to Telegram if player died                                     |       `boolean`        |        :x:         |         `false`          |
 |    logPlayerAsleep     | If true, plugin will send message to Telegram if player fell asleep                              |       `boolean`        |        :x:         |         `false`          |
 |  logPlayerAdvancement  | If true, plugin will send message to Telegram if player fell asleep                              |       `boolean`        |        :x:         |          `true`          |
+|      logInventory      | If true, plugin will send message to Telegram if player fell asleep                              |       `boolean`        |        :x:         |          `true`          |
 |        strings         | Dictionary of tokens - strings for plugin i18n                                                   | `Map<string, string>`  |        :x:         |    See default config    |
 |        commands        | Dictionary of command text used in Telegram bot                                                  | `Map<string, string>`  | :heavy_check_mark: |        See below         |
 | telegramMessageFormat  | Format string for TGtoMC chat message                                                            |        `string`        |        :x:         |    See default config    |

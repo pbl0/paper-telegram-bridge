@@ -25,7 +25,7 @@ val pluginVersion = cfg.get("version")
 val paperApiVersion = cfg.get("api-version")
 val retrofitVersion = "2.7.1"
 
-group = "org.kraftwerk28"
+group = "eu.pablob"
 version = pluginVersion as Any
 
 repositories {

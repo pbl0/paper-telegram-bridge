@@ -68,8 +68,8 @@ Download from [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge), [m
 |     logFromTGtoMC      | If true, plugin will send messages from chats, to Minecraft server                               |       `boolean`        |        :x:         |          `true`          |
 |     logPlayerDeath     | If true, plugin will send message to Telegram if player died                                     |       `boolean`        |        :x:         |         `false`          |
 |    logPlayerAsleep     | If true, plugin will send message to Telegram if player fell asleep                              |       `boolean`        |        :x:         |         `false`          |
-|  logPlayerAdvancement  | If true, plugin will send message to Telegram if player fell asleep                              |       `boolean`        |        :x:         |          `true`          |
-|      logInventory      | If true, plugin will send message to Telegram if player fell asleep                              |       `boolean`        |        :x:         |          `true`          |
+|  logPlayerAdvancement  | If true, plugin will send message to Telegram if player gets an advancement                      |       `boolean`        |        :x:         |          `true`          |
+|      logInventory      | If true, plugin will send image of inventory, item or ender chest  [Read more](#Inventory)       |       `boolean`        |        :x:         |          `true`          |
 |        strings         | Dictionary of tokens - strings for plugin i18n                                                   | `Map<string, string>`  |        :x:         |    See default config    |
 |        commands        | Dictionary of command text used in Telegram bot                                                  | `Map<string, string>`  | :heavy_check_mark: |        See below         |
 | telegramMessageFormat  | Format string for TGtoMC chat message                                                            |        `string`        |        :x:         |    See default config    |
@@ -116,7 +116,7 @@ This feature is related to [this issue](https://github.com/kraftwerk28/spigot-tg
 |:---------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------|
 | `tg-bridge.silentjoinleave` | When set to **true** the bot won't send join and leave messages for that player. It will also be hidden from the **/online** command. |
 
-## InteractiveChat like implementation
+## Inventory
 
 Similar behavior as InteractiveChat plugin (not a dependency!).
 Commands implemented:

@@ -122,3 +122,4 @@ Commands implemented:
 
 - [inv]
 - [item]
+- [ender]

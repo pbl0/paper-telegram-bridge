@@ -8,7 +8,7 @@ if ! gradle; then
 fi
 
 # Move the built JAR file to the plugins directory
-if ! mv -f build/libs/paper-telegram-bridge-1.21.4-v0.21.0.jar $HOME/Desktop/minecraft_server/mcserver/plugins; then
+if ! mv -f build/libs/paper-telegram-bridge-1.21.4-v0.21.1.jar $HOME/Desktop/minecraft_server/mcserver/plugins; then
     echo "Failed to move JAR file. Exiting."
     exit 1
 fi

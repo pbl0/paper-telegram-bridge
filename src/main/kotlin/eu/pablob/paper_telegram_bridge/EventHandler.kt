@@ -26,7 +26,6 @@ class EventHandler(
 
         val player = event.player
         val message = PlainTextComponentSerializer.plainText().serialize(event.message())
-
         // Inventory
         if (message.contains("[")) {
             getLogInventory(message, player)
@@ -75,8 +74,7 @@ class EventHandler(
         val player = event.player
         val hasPermission = player.hasPermission("tg-bridge.silentjoinleave")
         if (hasPermission) return
-        if (event.bedEnterResult != PlayerBedEnterEvent.BedEnterResult.OK)
-            return
+        if (event.bedEnterResult != PlayerBedEnterEvent.BedEnterResult.OK) return
         val text = "<i>${player.playerProfile.name.toString()}</i> fell asleep."
         sendMessage(text)
     }
@@ -125,42 +123,57 @@ class EventHandler(
 
     private fun getLogInventory(message: String, player: Player) {
         if (!config.logInventory) return
-        var userMessageBefore = message.substringBefore("[")
-        var userMessageAfter = message.substringAfter("]")
 
-        // Handle if InteractiveChat plugin is installed on the server.
-        if (message.contains("<") && message.contains(">")) {
-            userMessageBefore = message.substringBefore("<")
-            userMessageAfter = message.substringAfter(">")
-        }
-        if (message.lowercase().contains("[inv]")) {
-            plugin.launch {
-                val inventoryImage = InventoryRenderer.renderInventoryToFile(player.inventory, "inventory.png")
-                val caption =
-                    "${player.playerProfile.name}: $userMessageBefore[${player.playerProfile.name}’s Inventory]$userMessageAfter"
-                tgBot.sendPhotoToTelegram(inventoryImage, caption)
+        val lowerMessage = message.lowercase()
+
+        val playerName = player.playerProfile.name
+
+        fun formatCaption(label: String, msgBefore: String, msgAfter: String) =
+            "$playerName: $msgBefore[$playerName’s $label]$msgAfter"
+
+        when {
+            "[inv]" in lowerMessage -> plugin.launch {
+                val (userMessageBefore, userMessageAfter) = userMessageBeforeAfter(message, "[inv]")
+                val image = InventoryRenderer.renderInventoryToFile(player.inventory, "inventory.png")
+                tgBot.sendPhotoToTelegram(image, formatCaption("Inventory", userMessageBefore, userMessageAfter))
             }
-        } else if (message.lowercase().contains("[ender]")) {
-            plugin.launch {
-                val enderImage = EnderChestRenderer.renderEnderChestToFile(player.enderChest, "ender.png")
-                val caption =
-                    "${player.playerProfile.name}: $userMessageBefore[${player.playerProfile.name}’s Ender Chest]$userMessageAfter"
-                tgBot.sendPhotoToTelegram(enderImage, caption)
+
+            "[ender]" in lowerMessage -> plugin.launch {
+                val (userMessageBefore, userMessageAfter) = userMessageBeforeAfter(message, "[inv]")
+                val image = EnderChestRenderer.renderEnderChestToFile(player.enderChest, "ender.png")
+                tgBot.sendPhotoToTelegram(image, formatCaption("Ender Chest", userMessageBefore, userMessageAfter))
             }
-        } else if (message.lowercase().contains("[item]")) {
-            plugin.launch {
+
+            "[item]" in lowerMessage -> plugin.launch {
                 val item = player.inventory.itemInMainHand
-                val (itemImage, itemName) = ItemRenderer.renderItemToFile(item, "item.png")
-                val name = itemName.substringBefore('(').trim()
-                var amountSuffix = ""
-                if (item.amount > 1) {
-                    amountSuffix = " x ${item.amount}"
-                }
+                val (image, itemName) = ItemRenderer.renderItemToFile(item, "item.png")
+                val formattedName = itemName.substringBefore('(').trim()
+                val amountSuffix = if (item.amount > 1) " x ${item.amount}" else ""
+                val (userMessageBefore, userMessageAfter) = userMessageBeforeAfter(message, "[item]")
                 tgBot.sendPhotoToTelegram(
-                    itemImage,
-                    "${player.playerProfile.name}: $userMessageBefore[$name$amountSuffix]$userMessageAfter"
+                    image, "$playerName: $userMessageBefore[$formattedName$amountSuffix]$userMessageAfter"
                 )
             }
+
+            else -> {
+                sendMessage(message, playerName)
+
+            } // Default case if no tags are found
         }
     }
+
+    private fun userMessageBeforeAfter(message: String, tag: String): Pair<String, String> {
+        var userMessageBefore = message.substringBefore(tag)
+        var userMessageAfter = message.substringAfter(tag)
+
+        // Handle InteractiveChat plugin formatting.
+        if ("<" in message && ">" in message) {
+            val newTag = message.substringAfter("<").substringBefore(">")
+            userMessageBefore = message.substringBefore("<$newTag>")
+            userMessageAfter = message.substringAfter("<$newTag>")
+        }
+
+        return Pair(userMessageBefore, userMessageAfter)
+    }
+
 }

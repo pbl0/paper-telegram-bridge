@@ -69,17 +69,14 @@ object EnderChestRenderer {
         val itemName = item.type.name.lowercase()
         if (itemName == "potion") {
             // Handle potions differently
-            val potionTexture =
-                loadPotionTexture(item, this.javaClass)
-                    ?: loadAwkwardPotionTexture(this.javaClass)
+            val potionTexture = loadPotionTexture(item, this.javaClass) ?: loadAwkwardPotionTexture(this.javaClass)
             if (potionTexture != null) {
                 g.drawImage(potionTexture, x + 8, y + 8, SLOT_SIZE - 16, SLOT_SIZE - 16, null)
             }
-        } else if (itemName.contains("map")){
+        } else if (itemName.contains("map")) {
             // Handle maps
             g.drawImage(loadMapTexture(this.javaClass), x + 8, y + 8, SLOT_SIZE - 16, SLOT_SIZE - 16, null)
-        }
-        else {
+        } else {
             // Handle non-potion items
             val texture = loadItemTexture(itemName, this.javaClass)
             if (texture != null) {

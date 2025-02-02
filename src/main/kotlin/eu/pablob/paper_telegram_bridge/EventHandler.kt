@@ -140,6 +140,13 @@ class EventHandler(
                     "${player.playerProfile.name}: $userMessageBefore[${player.playerProfile.name}’s Inventory]$userMessageAfter"
                 tgBot.sendPhotoToTelegram(inventoryImage, caption)
             }
+        } else if (message.lowercase().contains("[ender]")) {
+            plugin.launch {
+                val enderImage = EnderChestRenderer.renderEnderChestToFile(player.enderChest, "ender.png")
+                val caption =
+                    "${player.playerProfile.name}: $userMessageBefore[${player.playerProfile.name}’s Ender Chest]$userMessageAfter"
+                tgBot.sendPhotoToTelegram(enderImage, caption)
+            }
         } else if (message.lowercase().contains("[item]")) {
             plugin.launch {
                 val item = player.inventory.itemInMainHand

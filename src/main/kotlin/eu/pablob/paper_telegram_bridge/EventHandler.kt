@@ -134,19 +134,27 @@ class EventHandler(
         when {
             "[inv]" in lowerMessage -> plugin.launch {
                 val (userMessageBefore, userMessageAfter) = userMessageBeforeAfter(message, "[inv]")
-                val image = InventoryRenderer.renderInventoryToFile(player.inventory, "inventory.png")
+                val image = InventoryRenderer(plugin).renderInventoryToFile(player.inventory, "inventory.png")
                 tgBot.sendPhotoToTelegram(image, formatCaption("Inventory", userMessageBefore, userMessageAfter))
             }
 
             "[ender]" in lowerMessage -> plugin.launch {
                 val (userMessageBefore, userMessageAfter) = userMessageBeforeAfter(message, "[inv]")
-                val image = EnderChestRenderer.renderEnderChestToFile(player.enderChest, "ender.png")
+                val image = EnderChestRenderer(plugin).renderEnderChestToFile(player.enderChest, "ender.png")
                 tgBot.sendPhotoToTelegram(image, formatCaption("Ender Chest", userMessageBefore, userMessageAfter))
             }
 
             "[item]" in lowerMessage -> plugin.launch {
                 val item = player.inventory.itemInMainHand
-                val (image, itemName) = ItemRenderer.renderItemToFile(item, "item.png")
+                if (item.type.name.lowercase() == "written_book" || item.type.name.lowercase() == "writable_book") {
+                    val (bookDirectory, caption) = BookRenderer(plugin).renderBookToFile(item)
+                    if (bookDirectory != null) {
+                        tgBot.sendImageWithKeyboard(config.allowedChats[0], 1, bookDirectory, caption)
+                    }
+                    return@launch
+                }
+
+                val (image, itemName) = ItemRenderer(plugin).renderItemToFile(item, "item.png")
                 val formattedName = itemName.substringBefore('(').trim()
                 val amountSuffix = if (item.amount > 1) " x ${item.amount}" else ""
                 val (userMessageBefore, userMessageAfter) = userMessageBeforeAfter(message, "[item]")
@@ -175,5 +183,6 @@ class EventHandler(
 
         return Pair(userMessageBefore, userMessageAfter)
     }
+
 
 }

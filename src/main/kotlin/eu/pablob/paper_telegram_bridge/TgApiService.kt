@@ -46,6 +46,25 @@ interface TgApiService {
         @Part photo: MultipartBody.Part,
         @Part("caption") caption: RequestBody? = null,
         @Part("reply_to_message_id") replyToMessageId: Long? = null,
-        @Part("disable_notification") disableNotification: Boolean? = null
+        @Part("disable_notification") disableNotification: Boolean? = null,
+        @Part("reply_markup") replyMarkup: RequestBody? = null
+    ): TgResponse<Message>
+
+    @POST("answerCallbackQuery")
+    suspend fun answerCallbackQuery(
+        @Query("callback_query_id") callbackQueryId: String, // Unique identifier for the callback query
+        @Query("text") text: String? = null, // Optional: Text to show to the user
+        @Query("show_alert") showAlert: Boolean = false, // Optional: Whether to show an alert instead of a notification
+        @Query("url") url: String? = null // Optional: URL to open (for games)
+    ): TgResponse<Boolean> // Telegram API returns a boolean indicating success
+
+    @Multipart
+    @POST("editMessageMedia")
+    suspend fun editMessageMedia(
+        @Part("chat_id") chatId: Long,
+        @Part("message_id") messageId: Long,
+        @Part("media") media: RequestBody, // JSON describing the media
+        @Part photo: MultipartBody.Part, // The actual image
+        @Part("reply_markup") replyMarkup: RequestBody? = null // Inline keyboard
     ): TgResponse<Message>
 }

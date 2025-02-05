@@ -9,11 +9,11 @@ import org.bukkit.Material
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
-object EnderChestRenderer {
+class EnderChestRenderer(private val plugin: AsyncJavaPlugin) {
 
-    private const val SLOT_SIZE = 64 // Size of each slot in pixels
-    private const val PADDING = 4 // Padding between slots in pixels
-    private const val BORDER_SIZE = 2 // Border size around slots in pixels
+    private val SLOT_SIZE = 64 // Size of each slot in pixels
+    private val PADDING = 4 // Padding between slots in pixels
+    private val BORDER_SIZE = 2 // Border size around slots in pixels
 
     fun renderEnderChestToFile(inventory: Inventory, filePath: String): File {
         val columns = 9  // Ender Chest has 9 columns
@@ -60,7 +60,7 @@ object EnderChestRenderer {
         g.dispose()
 
         // Save the image to a file
-        val outputFile = File(filePath)
+        val outputFile = File(plugin.dataFolder, "inv/$filePath")
         ImageIO.write(image, "png", outputFile)
         return outputFile
     }

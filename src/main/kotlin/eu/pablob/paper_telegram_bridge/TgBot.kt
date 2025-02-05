@@ -15,6 +15,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import java.io.File
 import retrofit2.HttpException
 
@@ -64,6 +65,7 @@ class TgBot(
         )
     }
 
+
     private suspend fun initialize() {
         me = api.getMe().result!!
         // I intentionally don't put optional @username in regex
@@ -93,28 +95,31 @@ class TgBot(
     }
 
     private fun initPolling() = plugin.launch {
-        loop@ while (true) {
-            try {
-                api.getUpdates(
-                    offset = currentOffset,
-                    timeout = config.pollTimeout,
-                ).result?.let { updates ->
-                    if (updates.isNotEmpty()) {
-                        updates.forEach { updateChan.send(it) }
-                        currentOffset = updates.last().updateId + 1
+        try {
+            loop@ while (true) {
+                try {
+                    api.getUpdates(
+                        offset = currentOffset,
+                        timeout = config.pollTimeout,
+                    ).result?.let { updates ->
+                        if (updates.isNotEmpty()) {
+                            updates.forEach { updateChan.send(it) }
+                            currentOffset = updates.last().updateId + 1
+                        }
                     }
-                }
-            } catch (e: Exception) {
-                when (e) {
-                    is CancellationException -> break@loop
-                    else -> {
-                        e.printStackTrace()
-                        continue@loop
+                } catch (e: Exception) {
+                    when (e) {
+                        is CancellationException -> break@loop
+                        else -> {
+                            e.printStackTrace()
+                            continue@loop
+                        }
                     }
                 }
             }
+        } finally {
+            updateChan.close()
         }
-        updateChan.close()
     }
 
     private fun initHandler() = plugin.launch {
@@ -128,6 +133,13 @@ class TgBot(
     }
 
     private suspend fun handleUpdate(update: Update) {
+
+
+        // Handle callback queries
+        if (update.callbackQuery != null) {
+            handleCallbackQuery(update.callbackQuery)
+            return
+        }
         // Accept only these chat types
         if (!listOf("group", "supergroup").contains(update.message?.chat?.type))
             return
@@ -135,6 +147,7 @@ class TgBot(
         // Check whether the chat is white-listed in config
         if (!config.allowedChats.contains(update.message?.chat?.id))
             return
+
 
         val ctx = HandlerContext(update, update.message, update.message?.chat)
         update.message?.text?.let {
@@ -256,4 +269,144 @@ class TgBot(
             }
         }
     }
+
+    private fun createInlineKeyboardJson(
+        prevCallbackData: String,
+        nextCallbackData: String,
+        isFirstPage: Boolean,
+        isLastPage: Boolean
+    ): String {
+        if (isFirstPage) {
+            return JSONObject().apply {
+                put(
+                    "inline_keyboard", listOf(
+                    listOf(
+                        JSONObject().apply {
+                            put("text", "Next ➡️")
+                            put("callback_data", nextCallbackData)
+                        }
+                    )
+                ))
+            }.toString()
+        } else if (isLastPage) {
+            return JSONObject().apply {
+                put(
+                    "inline_keyboard", listOf(
+                    listOf(
+                        JSONObject().apply {
+                            put("text", "⬅️ Back")
+                            put("callback_data", prevCallbackData)
+                        }
+                    )
+                ))
+            }.toString()
+        }
+        return JSONObject().apply {
+            put(
+                "inline_keyboard", listOf(
+                    listOf(
+                    JSONObject().apply {
+                        put("text", "⬅️ Back")
+                        put("callback_data", prevCallbackData)
+                    },
+                    JSONObject().apply {
+                        put("text", "Next ➡️")
+                        put("callback_data", nextCallbackData)
+                    }
+                )
+            ))
+        }.toString()
+    }
+
+
+    suspend fun sendImageWithKeyboard(chatId: Long, imageIndex: Int, imageDirectory: File, caption: String?) {
+        val imageFile = File(imageDirectory, "page$imageIndex.png")
+        val totalPages = imageDirectory.listFiles { file -> file.name.endsWith(".png") }?.size ?: 1
+        val isLastPage = imageIndex == totalPages
+
+        val requestBody = imageFile.asRequestBody("image/png".toMediaTypeOrNull())
+        val photoPart = MultipartBody.Part.createFormData("photo", imageFile.name, requestBody)
+
+        val bookHash = imageDirectory.toString().split("/")[4]
+
+        // Manually create the JSON string for the inline keyboard
+        var keyboardJson = ""
+        if (!isLastPage){
+            keyboardJson = createInlineKeyboardJson("prev_$imageIndex-$bookHash", "next_$imageIndex-$bookHash", true, isLastPage)
+        }
+        // Convert the JSON string to a RequestBody
+        val replyMarkupBody = keyboardJson.toRequestBody("application/json".toMediaTypeOrNull())
+
+        try {
+            api.sendPhoto(
+                chatId = chatId,
+                photo = photoPart,
+                replyMarkup = replyMarkupBody, // Pass the JSON as a RequestBody
+                caption = caption?.toRequestBody("text/plain".toMediaTypeOrNull()),
+                disableNotification = config.silentMessages
+            )
+        } catch (e: HttpException) {
+            val errorBody = e.response()?.errorBody()?.string()
+            println("Telegram API error: $errorBody")
+        }
+    }
+
+    suspend fun editImageWithKeyboard(chatId: Long, messageId: Long, imageIndex: Int, imageDirectory: File, hash: String) {
+        val imageFile = File(imageDirectory, "page$imageIndex.png")
+        val totalPages = imageDirectory.listFiles { file -> file.name.endsWith(".png") }?.size ?: 1
+
+        val isFirstPage = imageIndex == 1
+        val isLastPage = imageIndex == totalPages
+
+        val requestBody = imageFile.asRequestBody("image/png".toMediaTypeOrNull())
+        val photoPart = MultipartBody.Part.createFormData("media", imageFile.name, requestBody)
+
+        val keyboardJson = createInlineKeyboardJson("prev_$imageIndex-$hash", "next_$imageIndex-$hash", isFirstPage, isLastPage)
+        val replyMarkupBody = keyboardJson.toRequestBody("application/json".toMediaTypeOrNull())
+
+        val mediaJson = """
+        {
+            "type": "photo",
+            "media": "attach://media"
+        }
+    """.trimIndent().toRequestBody("application/json".toMediaTypeOrNull())
+
+        try {
+            api.editMessageMedia(
+                chatId = chatId,
+                messageId = messageId,
+                media = mediaJson,
+                photo = photoPart,
+                replyMarkup = replyMarkupBody
+            )
+        } catch (e: HttpException) {
+            val errorBody = e.response()?.errorBody()?.string()
+            println("Telegram API error: $errorBody")
+        }
+    }
+
+
+    private suspend fun handleCallbackQuery(callbackQuery: CallbackQuery) {
+        val message = callbackQuery.message ?: return
+        val chatId = message.chat.id
+        val messageId = message.messageId
+        val data = callbackQuery.data ?: return
+
+        var currentImageIndex = data.substringAfter("_").substringBefore("-").toInt()
+        val action = data.substringBefore("_")
+        val hash = data.substringAfter("-")
+
+        when (action) {
+            "prev" -> currentImageIndex -= 1
+            "next" -> currentImageIndex += 1
+        }
+
+        // Edit the existing message instead of sending a new one
+        editImageWithKeyboard(chatId, messageId, currentImageIndex, File(plugin.dataFolder,"inv/books/$hash"), hash)
+
+        // Acknowledge the callback query
+        api.answerCallbackQuery(callbackQuery.id)
+    }
+
+
 }

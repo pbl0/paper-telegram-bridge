@@ -11,13 +11,13 @@ import java.awt.Color
 import java.awt.Graphics2D
 import java.util.*
 
-object ItemRenderer {
-    private const val WIDTH = 250
-    private const val IMAGE_SCALE = 48
-    private const val MARGIN = 12
-    private const val BACKGROUND_COLOR = "#210939"
-    private const val BORDER_COLOR = "#1A0B1A"
-    private const val ENCHANTMENT_COLOR = "#A7A7A7"
+class ItemRenderer(private val plugin: AsyncJavaPlugin) {
+    private val WIDTH = 250
+    private val IMAGE_SCALE = 48
+    private val MARGIN = 12
+    private val BACKGROUND_COLOR = "#210939"
+    private val BORDER_COLOR = "#1A0B1A"
+    private val ENCHANTMENT_COLOR = "#A7A7A7"
 
     fun renderItemToFile(item: ItemStack, filePath: String): Pair<File, String> {
 
@@ -45,7 +45,7 @@ object ItemRenderer {
 
         g.dispose()
 
-        val outputFile = File(filePath)
+        val outputFile = File(plugin.dataFolder, "inv/$filePath")
         ImageIO.write(image, "png", outputFile)
         return Pair(outputFile, itemName)
     }

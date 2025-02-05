@@ -36,3 +36,14 @@ fun loadPotionTexture(item: ItemStack, javaClass: Class<out Any>): BufferedImage
 fun loadMapTexture(javaClass: Class<out Any>): BufferedImage? {
     return loadItemTexture("map", javaClass)
 }
+
+fun loadImage(path: String, javaClass: Class<out Any>): BufferedImage? {
+    val inputStream: InputStream? = javaClass.getResourceAsStream(path)
+    return try {
+        inputStream?.let {
+            ImageIO.read(it)
+        }
+    } catch (e: Exception) {
+        null
+    }
+}

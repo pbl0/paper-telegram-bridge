@@ -9,12 +9,12 @@ import org.bukkit.Material
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
-object InventoryRenderer {
+class InventoryRenderer(private val plugin: AsyncJavaPlugin) {
 
-    private const val SLOT_SIZE = 64 // Size of each slot in pixels
-    private const val PADDING = 4 // Padding between slots in pixels
-    private const val BORDER_SIZE = 2 // Border size around slots in pixels
-    private const val BOTTOM_PADDING = 8 // Additional padding for the bottom row (Hotbar)
+    private val SLOT_SIZE = 64 // Size of each slot in pixels
+    private val PADDING = 4 // Padding between slots in pixels
+    private val BORDER_SIZE = 2 // Border size around slots in pixels
+    private val BOTTOM_PADDING = 8 // Additional padding for the bottom row (Hotbar)
 
     fun renderInventoryToFile(inventory: Inventory, filePath: String): File {
         val columns = 9 // Standard inventory columns
@@ -77,7 +77,7 @@ object InventoryRenderer {
         g.dispose()
 
         // Save the image to a file
-        val outputFile = File(filePath)
+        val outputFile = File(plugin.dataFolder, "inv/$filePath")
         ImageIO.write(image, "png", outputFile)
         return outputFile
     }
@@ -92,11 +92,10 @@ object InventoryRenderer {
             if (potionTexture != null) {
                 g.drawImage(potionTexture, x + 8, y + 8, SLOT_SIZE - 16, SLOT_SIZE - 16, null)
             }
-        } else if (itemName.contains("map")){
+        } else if (itemName.contains("map")) {
             // Handle maps
             g.drawImage(loadMapTexture(this.javaClass), x + 8, y + 8, SLOT_SIZE - 16, SLOT_SIZE - 16, null)
-        }
-        else {
+        } else {
             // Handle non-potion items
             val texture = loadItemTexture(itemName, this.javaClass)
             if (texture != null) {

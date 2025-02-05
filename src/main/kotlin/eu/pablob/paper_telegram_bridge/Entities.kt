@@ -34,11 +34,31 @@ data class Message(
     val chat: Chat,
     @Name("reply_to_message") val replyToMessage: Message? = null,
     val text: String? = null,
+    @Name("reply_markup") val replyMarkup: InlineKeyboardMarkup? = null// Inline keyboard attached to the message
 )
 
 data class Update(
     @Name("update_id") val updateId: Long,
     val message: Message? = null,
+    @Name("callback_query") val callbackQuery: CallbackQuery? = null
+)
+
+data class CallbackQuery(
+    val id: String, // Unique identifier for the callback query
+    val from: User, // User who clicked the button
+    val message: Message?, // Message that contained the inline keyboard
+    @Name("chat_instance") val chatInstance: String?, // Unique identifier for the chat instance
+    val data: String? // Data associated with the button
+)
+
+data class InlineKeyboardMarkup(
+    @Name("inline_keyboard") val inlineKeyboard: List<List<InlineKeyboardButton>>
+)
+
+data class InlineKeyboardButton(
+    val text: String, // Label text on the button
+    @Name("callback_data") val callbackData: String? = null, // Data to be sent in a callback query
+    val url: String? = null // Optional URL for URL buttons
 )
 
 data class BotCommand(val command: String, val description: String)

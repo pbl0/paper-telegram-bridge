@@ -27,7 +27,7 @@ class BookRenderer(private val plugin: AsyncJavaPlugin) {
 
         val pageFiles = mutableListOf<File>()
         var caption: String? = null
-        if (meta.title != null){
+        if (meta.title != null) {
             caption = "${meta.title} by ${meta.author}"
         }
 
@@ -49,7 +49,7 @@ class BookRenderer(private val plugin: AsyncJavaPlugin) {
 
     private fun drawBookText(g: Graphics2D, page: String, pageIndex: Int, totalPages: Int) {
         g.color = Color.BLACK
-        g.font = MinecraftFontLoader.getFont(16f) // Updated font size
+        g.font = MinecraftFontLoader.getFont(18f) // Updated font size
 
         val fm: FontMetrics = g.fontMetrics
         val maxLineWidth = pageWidth - marginLeft * 2  // Text width should fit within margins
@@ -58,21 +58,34 @@ class BookRenderer(private val plugin: AsyncJavaPlugin) {
         // Draw page number on top right
         g.drawString("Page $pageIndex of $totalPages", pageWidth - 150, marginTop)
 
-        var y = marginTop + lineHeight  // Start below the page number
+        var y = marginTop + lineHeight + 10  // Start below the page number
         for (line in page.split("\n")) {
             var currentLine = ""
-            // TODO: Handle words that are too long and get overflown.
-            for (word in line.split(" ")) {
-                val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
-                if (fm.stringWidth(testLine) > maxLineWidth) {
-                    // Draw the current line and move to the next one
-                    g.drawString(currentLine.trim(), marginLeft, y)
-                    y += lineHeight
 
-                    currentLine = word
+            for (word in line.split(" ")) {
+                // Split words longer than 19 characters
+                val words = if (fm.stringWidth(word) > maxLineWidth) {
+                    word.chunked(19) // Split the word into chunks of 19 characters
                 } else {
-                    currentLine = testLine
+                    listOf(word) // Keep the word as is if it's not too long
                 }
+
+                for (chunk in words) {
+                    val testLine = if (currentLine.isEmpty()) chunk else "$currentLine $chunk"
+                    if (fm.stringWidth(testLine) > maxLineWidth) {
+                        // Draw the current line and move to the next one
+                        g.drawString(currentLine.trim(), marginLeft, y)
+                        y += lineHeight - 4
+                        currentLine = chunk
+                    } else {
+                        currentLine = testLine
+                    }
+                }
+            }
+
+// Draw the last line if it's not empty
+            if (currentLine.isNotEmpty()) {
+                g.drawString(currentLine.trim(), marginLeft, y)
             }
 
             // Draw remaining part of the line
@@ -82,7 +95,6 @@ class BookRenderer(private val plugin: AsyncJavaPlugin) {
             }
         }
     }
-
 
 
     private fun renderBackground(g: Graphics2D, image: BufferedImage) {

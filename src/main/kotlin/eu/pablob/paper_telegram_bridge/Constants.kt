@@ -2,8 +2,6 @@ package eu.pablob.paper_telegram_bridge
 
 object Constants {
     const val CONFIG_FILENAME = "config.yml"
-    const val ADVANCEMENTS_FILENAME = "advancements.json"
-
     object WARN {
         const val NO_CONFIG_WARNING = "No config file found! Writing default config to config.yml."
         const val NO_TOKEN = "Bot token must be defined."

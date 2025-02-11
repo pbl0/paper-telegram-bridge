@@ -3,15 +3,11 @@ package eu.pablob.paper_telegram_bridge
 import io.papermc.paper.event.player.AsyncChatEvent
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.entity.Player
-import java.io.InputStream
-
-import org.json.JSONArray
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.*
 
-import eu.pablob.paper_telegram_bridge.Constants as C
 
 
 class EventHandler(
@@ -61,9 +57,10 @@ class EventHandler(
         if (!config.logDeath) return
         val hasPermission = event.entity.hasPermission("tg-bridge.silentjoinleave")
         if (hasPermission) return
-        event.deathMessage().toString().let {
+        val deathMessage = event.deathMessage()?.let { PlainTextComponentSerializer.plainText().serialize(it) }
+        deathMessage.let {
             val username = event.entity.playerProfile.name.toString().fullEscape()
-            val text = it.replace(username, "<i>$username</i>")
+            val text = it!!.replace(username, "<i>$username</i>")
             sendMessage(text)
         }
     }
@@ -87,38 +84,15 @@ class EventHandler(
     @EventHandler
     fun onPlayerAdvancementDone(event: PlayerAdvancementDoneEvent) {
         if (!config.logPlayerAdvancement) return
-
-        val advancementKey = event.advancement.key
         // Filter out recipes advancements
-        if (advancementKey.toString().startsWith("minecraft:recipes")) return
-
-        // TODO: Surely there is a better way to do this...
-        val allAdvancements = loadAchievementsFromResource()
-        val displayTitle = getDisplayTitleByKey(advancementKey.key, allAdvancements) as String
+        if (event.advancement.key.toString().startsWith("minecraft:recipes")) return
+        val advancementName = PlainTextComponentSerializer.plainText().serialize(event.advancement.displayName())
+            .replace("[", "")
+            .replace("]", "")
         val username = event.player.playerProfile.name.toString().fullEscape()
 
-        val message = config.advancementString.replace("%username%", username).replace("%advancement%", displayTitle)
+        val message = config.advancementString.replace("%username%", username).replace("%advancement%", advancementName)
         sendMessage(message)
-    }
-
-
-    private fun loadAchievementsFromResource(): List<Advancement> {
-        val resourcePath = "/${C.ADVANCEMENTS_FILENAME}"
-        val inputStream: InputStream? = this::class.java.getResourceAsStream(resourcePath)
-        val json = inputStream!!.bufferedReader().use { it.readText() }
-        val jsonArray = JSONArray(json)
-        val advancements = mutableListOf<Advancement>()
-        for (i in 0 until jsonArray.length()) {
-            val jsonObject = jsonArray.getJSONObject(i)
-            val displayTitle = jsonObject.getString("displayTitle")
-            val key = jsonObject.getString("key")
-            advancements.add(Advancement(displayTitle, key))
-        }
-        return advancements
-    }
-
-    private fun getDisplayTitleByKey(key: String, advancements: List<Advancement>): String? {
-        return advancements.find { it.key == key }?.displayTitle
     }
 
     private fun getLogInventory(message: String, player: Player) {

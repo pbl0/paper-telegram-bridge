@@ -250,10 +250,11 @@ class TgBot(
         }
     }
 
-    suspend fun sendPhotoToTelegram(file: File, caption: String) {
-        val requestBody = file.asRequestBody("image/png".toMediaTypeOrNull())
-        val photoPart = MultipartBody.Part.createFormData("photo", file.name, requestBody)
+    suspend fun sendPhotoToTelegram(imageBytes: ByteArray, caption: String) {
+        val requestBody = imageBytes.toRequestBody("image/png".toMediaTypeOrNull())
+        val photoPart = MultipartBody.Part.createFormData("photo", "image.png", requestBody)
         val text = caption.toRequestBody("text/plain".toMediaTypeOrNull())
+
         config.allowedChats.forEach { chatId ->
             try {
                 api.sendPhoto(
@@ -263,12 +264,12 @@ class TgBot(
                     disableNotification = config.silentMessages
                 )
             } catch (e: HttpException) {
-                // e.printStackTrace()
                 val errorBody = e.response()?.errorBody()?.string()
                 println("Telegram API error: $errorBody")
             }
         }
     }
+
 
     private fun createInlineKeyboardJson(
         prevCallbackData: String,

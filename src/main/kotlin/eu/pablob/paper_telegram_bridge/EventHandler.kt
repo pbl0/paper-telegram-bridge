@@ -7,7 +7,9 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.*
-
+import org.bukkit.inventory.ItemStack
+import java.io.ByteArrayOutputStream
+import javax.imageio.ImageIO
 
 
 class EventHandler(
@@ -86,14 +88,35 @@ class EventHandler(
         if (!config.logPlayerAdvancement) return
         // Filter out recipes advancements
         if (event.advancement.key.toString().startsWith("minecraft:recipes")) return
+        val item = event.advancement.display?.icon()
+
         val advancementName = PlainTextComponentSerializer.plainText().serialize(event.advancement.displayName())
             .replace("[", "")
             .replace("]", "")
         val username = event.player.playerProfile.name.toString().fullEscape()
 
         val message = config.advancementString.replace("%username%", username).replace("%advancement%", advancementName)
-        sendMessage(message)
+        // sendMessage(message)
+        sendAdvancement(item, message)
+
     }
+
+    private fun sendAdvancement(item: ItemStack?, message: String) {
+        plugin.launch {
+            val image = item?.type?.name?.let { loadItemTexture(it.lowercase(), this.javaClass) }
+            if (image != null) {
+                val outputStream = ByteArrayOutputStream()
+                ImageIO.write(image, "png", outputStream)
+                val imageBytes = outputStream.toByteArray()
+                outputStream.close()
+
+                tgBot.sendPhotoToTelegram(imageBytes, message)
+            } else {
+                tgBot.sendMessageToTelegram(message) // Fallback if no image
+            }
+        }
+    }
+
 
     private fun getLogInventory(message: String, player: Player) {
         if (!config.logInventory) return
@@ -108,13 +131,13 @@ class EventHandler(
         when {
             "[inv]" in lowerMessage -> plugin.launch {
                 val (userMessageBefore, userMessageAfter) = userMessageBeforeAfter(message, "[inv]")
-                val image = InventoryRenderer(plugin).renderInventoryToFile(player.inventory, "inventory.png")
+                val image = InventoryRenderer().renderInventoryToFile(player.inventory)
                 tgBot.sendPhotoToTelegram(image, formatCaption("Inventory", userMessageBefore, userMessageAfter))
             }
 
             "[ender]" in lowerMessage -> plugin.launch {
                 val (userMessageBefore, userMessageAfter) = userMessageBeforeAfter(message, "[inv]")
-                val image = EnderChestRenderer(plugin).renderEnderChestToFile(player.enderChest, "ender.png")
+                val image = EnderChestRenderer().renderEnderChestToFile(player.enderChest)
                 tgBot.sendPhotoToTelegram(image, formatCaption("Ender Chest", userMessageBefore, userMessageAfter))
             }
 
@@ -128,7 +151,7 @@ class EventHandler(
                     return@launch
                 }
 
-                val (image, itemName) = ItemRenderer(plugin).renderItemToFile(item, "item.png")
+                val (image, itemName) = ItemRenderer().renderItemToFile(item)
                 val formattedName = itemName.substringBefore('(').trim()
                 val amountSuffix = if (item.amount > 1) " x ${item.amount}" else ""
                 val (userMessageBefore, userMessageAfter) = userMessageBeforeAfter(message, "[item]")

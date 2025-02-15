@@ -40,7 +40,7 @@ interface TgApiService {
     ): TgResponse<Boolean>
 
     @Multipart
-    @POST("sendPhoto")
+    @POST("sendPhoto?parse_mode=HTML")
     suspend fun sendPhoto(
         @Part("chat_id") chatId: Long,
         @Part photo: MultipartBody.Part,

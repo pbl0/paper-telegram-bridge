@@ -6,25 +6,25 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.EnchantmentStorageMeta
 import javax.imageio.ImageIO
 import java.awt.image.BufferedImage
-import java.io.File
 import java.awt.Color
 import java.awt.Graphics2D
+import java.io.ByteArrayOutputStream
 import java.util.*
 
-class ItemRenderer(private val plugin: AsyncJavaPlugin) {
-    private val WIDTH = 250
-    private val IMAGE_SCALE = 48
-    private val MARGIN = 12
-    private val BACKGROUND_COLOR = "#210939"
-    private val BORDER_COLOR = "#1A0B1A"
-    private val ENCHANTMENT_COLOR = "#A7A7A7"
+class ItemRenderer {
+    private val width = 250
+    private val imageScale = 48
+    private val margin = 12
+    private val backgroundColor = "#210939"
+    private val borderColor = "#1A0B1A"
+    private val enchantmentColor = "#A7A7A7"
 
-    fun renderItemToFile(item: ItemStack, filePath: String): Pair<File, String> {
+    fun renderItemToFile(item: ItemStack): Pair<ByteArray, String> {
 
         // Default rendering for non-map items
         val texture = loadTexture(item)
         val height = calculateDynamicHeight(item)
-        val image = BufferedImage(WIDTH, height, BufferedImage.TYPE_INT_ARGB)
+        val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
         val g = image.createGraphics()
 
         drawBackground(g, height)
@@ -32,7 +32,7 @@ class ItemRenderer(private val plugin: AsyncJavaPlugin) {
         val itemName = drawItemName(g, item)
 
         // Calculate textYOffset for enchantments and durability
-        var textYOffset = IMAGE_SCALE + MARGIN + 50 // Start below the item name
+        var textYOffset = imageScale + margin + 50 // Start below the item name
 
         // Draw enchantments and update textYOffset
         textYOffset = drawEnchantments(g, item, textYOffset)
@@ -45,9 +45,11 @@ class ItemRenderer(private val plugin: AsyncJavaPlugin) {
 
         g.dispose()
 
-        val outputFile = File(plugin.dataFolder, "inv/$filePath")
-        ImageIO.write(image, "png", outputFile)
-        return Pair(outputFile, itemName)
+        val outputStream = ByteArrayOutputStream()
+        ImageIO.write(image, "png", outputStream)
+        val imageBytes = outputStream.toByteArray()
+        outputStream.close()
+        return Pair(imageBytes, itemName)
     }
 
     private fun loadTexture(item: ItemStack): BufferedImage? {
@@ -62,7 +64,7 @@ class ItemRenderer(private val plugin: AsyncJavaPlugin) {
 
 
     private fun calculateDynamicHeight(item: ItemStack): Int {
-        var height = IMAGE_SCALE + MARGIN * 2 + 30 // Base height for texture and name
+        var height = imageScale + margin * 2 + 30 // Base height for texture and name
 
         val enchantments = if (item.itemMeta is EnchantmentStorageMeta) {
             (item.itemMeta as EnchantmentStorageMeta).storedEnchants
@@ -78,22 +80,22 @@ class ItemRenderer(private val plugin: AsyncJavaPlugin) {
             height += 20 // Add space for durability
         }
 
-        return height + MARGIN // Add bottom margin
+        return height + margin // Add bottom margin
     }
 
     private fun drawBackground(g: Graphics2D, height: Int) {
-        g.color = Color.decode(BACKGROUND_COLOR)
-        g.fillRect(0, 0, WIDTH, height)
-        g.color = Color.decode(BORDER_COLOR)
-        g.fillRect(4, 4, WIDTH - 8, height - 8)
+        g.color = Color.decode(backgroundColor)
+        g.fillRect(0, 0, width, height)
+        g.color = Color.decode(borderColor)
+        g.fillRect(4, 4, width - 8, height - 8)
     }
 
     private fun drawTexture(g: Graphics2D, texture: BufferedImage?) {
         if (texture == null) {
             g.color = Color.GRAY
-            g.fillRect(MARGIN, MARGIN, IMAGE_SCALE, IMAGE_SCALE)
+            g.fillRect(margin, margin, imageScale, imageScale)
         } else {
-            g.drawImage(texture, MARGIN, MARGIN, IMAGE_SCALE, IMAGE_SCALE, null)
+            g.drawImage(texture, margin, margin, imageScale, imageScale, null)
         }
     }
 
@@ -104,7 +106,7 @@ class ItemRenderer(private val plugin: AsyncJavaPlugin) {
         val nameColor = determineNameColor(item)
         g.font = MinecraftFontLoader.getFont(16f)
         g.color = nameColor
-        g.drawString(fullName, MARGIN, IMAGE_SCALE + MARGIN + 30)
+        g.drawString(fullName, margin, imageScale + margin + 30)
         return fullName
     }
 
@@ -133,14 +135,14 @@ class ItemRenderer(private val plugin: AsyncJavaPlugin) {
         }
         if (enchantments.isNotEmpty()) {
             g.font = MinecraftFontLoader.getFont(14f)
-            g.color = Color.decode(ENCHANTMENT_COLOR)
+            g.color = Color.decode(enchantmentColor)
             var currentYOffset = textYOffset
             enchantments.forEach { (enchantment, level) ->
                 g.drawString(
                     "${
                         enchantment.key.key.replace('_', ' ')
                             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-                    } $level", MARGIN, currentYOffset
+                    } $level", margin, currentYOffset
                 )
                 currentYOffset += 20
             }
@@ -155,7 +157,7 @@ class ItemRenderer(private val plugin: AsyncJavaPlugin) {
             g.color = Color.WHITE
             val currentDurability =
                 item.type.maxDurability - (item.itemMeta as org.bukkit.inventory.meta.Damageable).damage
-            g.drawString("Durability: $currentDurability/${item.type.maxDurability}", MARGIN, textYOffset)
+            g.drawString("Durability: $currentDurability/${item.type.maxDurability}", margin, textYOffset)
         }
     }
 
@@ -165,8 +167,8 @@ class ItemRenderer(private val plugin: AsyncJavaPlugin) {
             g.color = Color.WHITE
             val stackSize = "x ${item.amount}"
             // val textWidth = g.fontMetrics.stringWidth(stackSize)
-            val x = MARGIN + IMAGE_SCALE + 10 // Position to the right of the texture with a small margin
-            val y = MARGIN + IMAGE_SCALE - 5 // Slightly higher to align with the texture
+            val x = margin + imageScale + 10 // Position to the right of the texture with a small margin
+            val y = margin + imageScale - 5 // Slightly higher to align with the texture
             g.drawString(stackSize, x, y)
         }
     }

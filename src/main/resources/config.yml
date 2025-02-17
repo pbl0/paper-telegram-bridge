@@ -15,10 +15,13 @@ telegramFormat: "<i>%username%</i>: %message%"
 silentMessages: false
 strings:
   online: "<b>Online</b>"
-  nobodyOnline: "<b>Nobody online...</b>"
+  nobodyOnline: "<b>Nobody online...😔</b>"
   joined: "<i>%username%</i> joined."
   left: "<i>%username%</i> left."
-  advancement: "<i>%username%</i> has made the advancement <b>%advancement%</b>."
+  advancement: "<i>%username%</i> has made the advancement <b>%advancement%</b>.\n(<i>%description%</i>)"
+  goal: "<i>%username%</i> has completed the goal <b>%advancement%</b>.\n(<i>%description%</i>)"
+  challenge: "<i>%username%</i> has completed the challenge <b>%advancement%</b>.\n(<i>%description%</i>)"
+  death: "%deathMessage% 💀"
 commands:
   time: "time"
   online: "online"

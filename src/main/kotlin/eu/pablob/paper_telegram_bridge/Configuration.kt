@@ -26,6 +26,9 @@ class Configuration(plugin: Plugin) : YamlConfiguration() {
     val nobodyOnlineString: String
     val silentMessages: Boolean?
     val advancementString: String
+    val goalString: String
+    val challengeString: String
+    val deathString: String
 
     // Telegram bot stuff
     val botToken: String
@@ -144,7 +147,22 @@ class Configuration(plugin: Plugin) : YamlConfiguration() {
         logPlayerAdvancement = getBoolean("logPlayerAdvancement", false)
         logInventory = getBoolean("logInventory", false)
         advancementString =
-            getString("strings.advancement", "<i>%username%</i> has made the advancement <b>%advancement%</b>.")!!
+            getString(
+                "strings.advancement",
+                "<i>%username%</i> has made the advancement <b>%advancement%</b>.\n" +
+                        "(<i>%description%</i>)"
+            )!!
+        goalString =
+            getString(
+                "strings.goal", "<i>%username%</i> has reached the goal <b>%advancement%</b>.\n" +
+                        "(<i>%description%</i>)"
+            )!!
+        challengeString =
+            getString(
+                "strings.challenge", "<i>%username%</i> has completed the challenge <b>%advancement%</b>.\n" +
+                        "(<i>%description%</i>)"
+            )!!
+        deathString = getString("strings.death", "%deathMessage%")!!
         commands = BotCommands(this)
         // NB: Setting to null, if false, because API expects either `true` or absent parameter
         silentMessages = getBoolean("silentMessages").let { if (!it) null else true }

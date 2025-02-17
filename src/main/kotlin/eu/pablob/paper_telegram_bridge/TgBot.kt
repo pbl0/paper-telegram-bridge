@@ -254,7 +254,6 @@ class TgBot(
         val requestBody = imageBytes.toRequestBody("image/png".toMediaTypeOrNull())
         val photoPart = MultipartBody.Part.createFormData("photo", "image.png", requestBody)
         val text = caption.toRequestBody("text/plain".toMediaTypeOrNull())
-
         config.allowedChats.forEach { chatId ->
             try {
                 api.sendPhoto(

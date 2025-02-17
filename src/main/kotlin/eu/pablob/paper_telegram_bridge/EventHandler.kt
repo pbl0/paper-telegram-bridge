@@ -8,8 +8,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.*
 import org.bukkit.inventory.ItemStack
-import java.io.ByteArrayOutputStream
-import javax.imageio.ImageIO
+import java.awt.Color
 
 
 class EventHandler(
@@ -62,7 +61,8 @@ class EventHandler(
         val deathMessage = event.deathMessage()?.let { PlainTextComponentSerializer.plainText().serialize(it) }
         deathMessage.let {
             val username = event.entity.playerProfile.name.toString().fullEscape()
-            val text = it!!.replace(username, "<i>$username</i>")
+            var text = it!!.replace(username, "<i>$username</i>")
+            text = config.deathString.replace("%deathMessage%", text)
             sendMessage(text)
         }
     }
@@ -86,33 +86,34 @@ class EventHandler(
     @EventHandler
     fun onPlayerAdvancementDone(event: PlayerAdvancementDoneEvent) {
         if (!config.logPlayerAdvancement) return
-        // Filter out recipes advancements
-        if (event.advancement.key.toString().startsWith("minecraft:recipes")) return
-        val item = event.advancement.display?.icon()
 
-        val advancementName = PlainTextComponentSerializer.plainText().serialize(event.advancement.displayName())
-            .replace("[", "")
-            .replace("]", "")
+        val display = event.advancement.display ?: return // Ensure advancement has a display
+        val item = display.icon()
+        if (!display.doesAnnounceToChat()) return
+
+        val advancementName =
+            PlainTextComponentSerializer.plainText().serialize(event.advancement.displayName()).replace("[", "")
+                .replace("]", "")
         val username = event.player.playerProfile.name.toString().fullEscape()
-
-        val message = config.advancementString.replace("%username%", username).replace("%advancement%", advancementName)
-        // sendMessage(message)
-        sendAdvancement(item, message)
-
+        val frameType = display.frame().name.lowercase() // Get advancement frame type ("task", "goal", "challenge")
+        val description = PlainTextComponentSerializer.plainText().serialize(display.description())
+        val message = when (frameType) {
+            "goal" -> config.goalString
+            "challenge" -> config.challengeString
+            else -> config.advancementString // Default to "task"
+        }.replace("%username%", username).replace("%advancement%", advancementName).replace("%description%", description)
+        val textColor = Color.decode(display.frame().color().asHexString())
+        sendAdvancement(item, advancementName, frameType, textColor, message)
     }
 
-    private fun sendAdvancement(item: ItemStack?, message: String) {
+    private fun sendAdvancement(item: ItemStack?, title: String, frameType: String, textColor: Color, message: String) {
         plugin.launch {
-            val image = item?.type?.name?.let { loadItemTexture(it.lowercase(), this.javaClass) }
-            if (image != null) {
-                val outputStream = ByteArrayOutputStream()
-                ImageIO.write(image, "png", outputStream)
-                val imageBytes = outputStream.toByteArray()
-                outputStream.close()
+            val imageBytes = AdvancementRenderer().renderAdvancement(title, frameType, item, textColor)
 
+            if (imageBytes.isNotEmpty()) {
                 tgBot.sendPhotoToTelegram(imageBytes, message)
             } else {
-                tgBot.sendMessageToTelegram(message) // Fallback if no image
+                tgBot.sendMessageToTelegram(message) // Fallback if rendering fails
             }
         }
     }

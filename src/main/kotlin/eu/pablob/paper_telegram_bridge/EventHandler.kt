@@ -61,8 +61,7 @@ class EventHandler(
         val deathMessage = event.deathMessage()?.let { PlainTextComponentSerializer.plainText().serialize(it) }
         deathMessage.let {
             val username = event.entity.playerProfile.name.toString().fullEscape()
-            var text = it!!.replace(username, "<i>$username</i>")
-            text = config.deathString.replace("%deathMessage%", text)
+            val text = it!!.replace(username, "<i>$username</i>")
             sendMessage(text)
         }
     }

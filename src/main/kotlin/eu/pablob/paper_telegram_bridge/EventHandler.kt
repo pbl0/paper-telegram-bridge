@@ -2,12 +2,15 @@ package eu.pablob.paper_telegram_bridge
 
 import io.papermc.paper.event.player.AsyncChatEvent
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+import org.bukkit.block.ShulkerBox
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.*
+import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.BlockStateMeta
 import java.awt.Color
 
 
@@ -100,7 +103,8 @@ class EventHandler(
             "goal" -> config.goalString
             "challenge" -> config.challengeString
             else -> config.advancementString // Default to "task"
-        }.replace("%username%", username).replace("%advancement%", advancementName).replace("%description%", description)
+        }.replace("%username%", username).replace("%advancement%", advancementName)
+            .replace("%description%", description)
         val textColor = Color.decode(display.frame().color().asHexString())
         sendAdvancement(item, advancementName, frameType, textColor, message)
     }
@@ -125,8 +129,11 @@ class EventHandler(
 
         val playerName = player.playerProfile.name
 
-        fun formatCaption(label: String, msgBefore: String, msgAfter: String) =
-            "$playerName: $msgBefore[$playerName’s $label]$msgAfter"
+        fun formatCaption(label: String, msgBefore: String, msgAfter: String, showPlayerName: Boolean = true): String {
+            val playerNameLabel = if(showPlayerName) "$playerName’s " else ""
+            return "$playerName: $msgBefore[$playerNameLabel$label]$msgAfter"
+        }
+
 
         when {
             "[inv]" in lowerMessage -> plugin.launch {
@@ -149,6 +156,12 @@ class EventHandler(
                         tgBot.sendImageWithKeyboard(config.allowedChats[0], 1, bookDirectory, caption)
                     }
                     return@launch
+                } else if (item.type.name.lowercase() == "shulker_box") {
+                    val shulkerBoxContents = getShulkerBoxContents(item)
+                    val (userMessageBefore, userMessageAfter) = userMessageBeforeAfter(message, "[item]")
+                    val image = EnderChestRenderer().renderEnderChestToFile(shulkerBoxContents)
+                    tgBot.sendPhotoToTelegram(image, formatCaption("Shulker Box", userMessageBefore, userMessageAfter, false))
+                    return@launch
                 }
 
                 val (image, itemName) = ItemRenderer().renderItemToFile(item)
@@ -165,6 +178,17 @@ class EventHandler(
 
             } // Default case if no tags are found
         }
+    }
+
+    fun getShulkerBoxContents(item: ItemStack): Inventory {
+        // Get the item meta and cast to BlockStateMeta
+        val meta = item.itemMeta as? BlockStateMeta
+
+        // Get the stored block state and cast to ShulkerBox
+        val shulkerBox = meta!!.blockState as? ShulkerBox
+
+        // Return non-null contents
+        return shulkerBox!!.inventory
     }
 
     private fun userMessageBeforeAfter(message: String, tag: String): Pair<String, String> {

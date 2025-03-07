@@ -11,37 +11,35 @@ import java.io.ByteArrayOutputStream
 
 class EnderChestRenderer {
 
-    private val slotSize = 64 // Size of each slot in pixels
+    private val slotSize = 32 // Size of each slot in pixels
     private val padding = 4 // Padding between slots in pixels
-    private val borderSize = 2 // Border size around slots in pixels
+    private val borderSize = 16 // Border size around slots in pixels
+    private val background: BufferedImage? = loadImage("/enderBackground.png", this.javaClass)
 
     fun renderEnderChestToFile(inventory: Inventory): ByteArray {
         val columns = 9  // Ender Chest has 9 columns
         val rows = 3      // Ender Chest has 3 rows
 
-        // Calculate image dimensions
-        val width = columns * (slotSize + padding) - padding + 2 * borderSize
-        val height = rows * (slotSize + padding) - padding + 2 * borderSize
+        val image = BufferedImage(
+            background?.width!!,
+            background.height,
+            BufferedImage.TYPE_INT_ARGB
+        )
 
-        // Create the image
-        val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
         val g = image.createGraphics()
 
-        // Render background (lighter color)
-        g.color = Color.decode("#C5C5C5") // Light gray for borders
-        g.fillRect(0, 0, width, height)
+        // Draw the background first
+        background.let {
+            g.drawImage(it, 0, 0, null)
+        }
 
         // Render slots and items
         for (row in 0 until rows) {
             for (col in 0 until columns) {
                 val index = row * columns + col // Standard slot numbering
 
-                val x = col * (slotSize + padding) + borderSize
+                val x = col * (slotSize + padding) + borderSize + 1
                 val y = row * (slotSize + padding) + borderSize
-
-                // Draw slot background
-                g.color = Color.decode("#8A8A8A") // Dark gray for slot background
-                g.fillRect(x, y, slotSize, slotSize)
 
                 // Draw item in slot (if present)
                 val item = inventory.getItem(index)
@@ -94,12 +92,12 @@ class EnderChestRenderer {
         // Optionally, draw the item count adjusted to the bottom-right
         if (item.amount > 1) {
             g.color = Color.WHITE
-            g.font = MinecraftFontLoader.getFont(26f)
+            g.font = MinecraftFontLoader.getFont(16f)
             val countText = item.amount.toString()
             val textWidth = g.fontMetrics.stringWidth(countText)
 
             // Adjusted the item count position to bottom-right
-            g.drawString(countText, x + slotSize - textWidth, y + slotSize + 10)
+            g.drawString(countText, x + slotSize - textWidth + 2, y + slotSize + 10)
         }
     }
 }

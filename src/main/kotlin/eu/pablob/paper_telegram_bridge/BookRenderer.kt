@@ -56,7 +56,9 @@ class BookRenderer(private val plugin: AsyncJavaPlugin) {
         val lineHeight = fm.height  // Dynamic line height
 
         // Draw page number on top right
-        g.drawString("Page $pageIndex of $totalPages", pageWidth - 150, marginTop)
+        val pageNumberText = "Page $pageIndex of $totalPages"
+        val textWidth = fm.stringWidth(pageNumberText)
+        g.drawString(pageNumberText, pageWidth - textWidth - 30, marginTop)
 
         var y = marginTop + lineHeight + 10  // Start below the page number
         for (line in page.split("\n")) {

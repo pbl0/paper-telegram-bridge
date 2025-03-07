@@ -7,18 +7,18 @@ import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 
 class AdvancementRenderer {
-    private val width = 250
-    private val height = 80
-    private val backgroundColor = Color(32, 32, 32)
+    private val width = 320
+    private val height = 64
     private val borderColor = Color(78, 78, 78)
     private val titleColor = Color(234, 234, 2)
+    private val fontSize = 16f
 
     fun renderAdvancement(advancementTitle: String, frameType: String, icon: ItemStack?, textColor: Color): ByteArray {
         val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
         val g = image.createGraphics()
 
         drawBackground(g)
-        drawBorder(g)
+        // drawBorder(g)
         drawTitle(g, advancementTitle)
         drawSubtitle(g, frameType, textColor)
         drawIcon(g, icon)
@@ -31,28 +31,15 @@ class AdvancementRenderer {
     }
 
     private fun drawBackground(g: Graphics2D) {
-        g.color = backgroundColor
-        g.fillRect(0, 0, width, height)
-    }
-
-    private fun drawBorder(g: Graphics2D) {
-        g.color = borderColor
-
-        // Thickness of the border (increase for a bolder outline)
-        val thickness = 3
-
-        // Draw a filled border
-        g.fillRect(0, 0, width, thickness) // Top border
-        g.fillRect(0, 0, thickness, height) // Left border
-        g.fillRect(width - thickness, 0, thickness, height) // Right border
-        g.fillRect(0, height - thickness, width, thickness) // Bottom border
+        val backgroundImage = loadImage("/advancement32.png", this.javaClass)
+        g.drawImage(backgroundImage, 0, 0, Color.BLACK, null)
     }
 
 
     private fun drawTitle(g: Graphics2D, title: String) {
-        g.font = MinecraftFontLoader.getFont(16f)
+        g.font = MinecraftFontLoader.getFont(fontSize)
         g.color = Color.WHITE
-        g.drawString(title, 50, 60)
+        g.drawString(title, 72, 60)
     }
 
     private fun drawSubtitle(g: Graphics2D, frameType: String, textColor: Color) {
@@ -61,18 +48,18 @@ class AdvancementRenderer {
             "challenge" -> "Challenge Complete!"
             else -> "Advancement Made!" // Default to "task"
         }
-        g.font = MinecraftFontLoader.getFont(14f)
+        g.font = MinecraftFontLoader.getFont(fontSize)
         g.color = if (textColor == Color(85, 255, 85)) titleColor else textColor
-        g.drawString(subtitle, 50, 40)
+        g.drawString(subtitle, 72, 35)
     }
 
     private fun drawIcon(g: Graphics2D, item: ItemStack?) {
         val texture = item?.type?.let { loadItemTexture(it.name.lowercase(), this.javaClass) }
         if (texture != null) {
-            g.drawImage(texture, 10, 15, 32, 32, null)
+            g.drawImage(texture, 20, 15, 32, 32, null)
         } else {
             g.color = Color.GRAY
-            g.fillRect(10, 15, 32, 32)
+            g.fillRect(20, 15, 32, 32)
         }
     }
 }

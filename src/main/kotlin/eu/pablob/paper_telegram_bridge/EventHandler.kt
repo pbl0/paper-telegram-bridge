@@ -27,7 +27,7 @@ class EventHandler(
         val player = event.player
         val message = PlainTextComponentSerializer.plainText().serialize(event.message())
         // Inventory
-        if (message.contains("[")) {
+        if (message.contains("[") && message.contains("]")) {
             getLogInventory(message, player)
         } else {
             sendMessage(message, player.name)
@@ -174,9 +174,15 @@ class EventHandler(
             }
 
             else -> {
-                sendMessage(message, playerName)
+                // TODO: temporary fix to avoid weird messages on telegram when executing some interactive chat commands.
+                // Should be handled via config.
+                val otherCommands = arrayOf("[ping]", "[pos]", "[gametime]", "[time]", "[vault]")
+                if (!otherCommands.any { lowerMessage.contains(it) }) {
+                    // Default case if no tags are found
+                    sendMessage(message, playerName)
+                }
 
-            } // Default case if no tags are found
+            }
         }
     }
 

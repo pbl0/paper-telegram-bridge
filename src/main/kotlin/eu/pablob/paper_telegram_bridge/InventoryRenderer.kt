@@ -59,7 +59,6 @@ class InventoryRenderer {
                 // Draw item in slot (if present)
                 val item = inventory.getItem(index)
                 if (item != null && item.type != Material.AIR) {
-                    logger.info("Rendering item: ${item.type} at slot index: $index")
                     drawItem(g, item, x, y)
                     if (item.enchantments.isNotEmpty()) {
                         g.color = Color(128, 0, 128, 48) // Purple tint for enchanted items

@@ -10,6 +10,14 @@ class Plugin : AsyncJavaPlugin() {
     private var eventHandler: EventHandler? = null
     private var config: Configuration? = null
 
+    override fun onLoad() {
+        // Set Java AWT to headless mode. This property applies JVM-wide.
+        // It prevents java.awt.AWTError on servers without a graphical environment.
+        if (System.getProperty("java.awt.headless") == null) {
+            System.setProperty("java.awt.headless", "true")
+        }
+    }
+
     override suspend fun onEnableAsync() {
         try {
             launch {

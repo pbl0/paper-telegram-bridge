@@ -4,7 +4,6 @@ A fork from [spigot-tg-bridge](https://github.com/kraftwerk28/spigot-tg-bridge) 
 
 Download from [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge), [modrinth](http://modrinth.com/plugin/paper-telegram-bridge) or from [releases page](https://github.com/pbl0/paper-telegram-bridge/releases).
 
-
 ![image](https://github.com/user-attachments/assets/1a6f61c0-9563-49c6-8cf6-7658fbd4c005)
 
 ### This plugin will send chat messages from Minecraft to Telegram, and from Telegram to Minecraft.
@@ -15,21 +14,22 @@ Download from [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge), [m
    `plugins/` directory on your server **OR** clone this repo and run `gradle` inside repo's directory.
 
 2. If you already have telegram bot, skip this step. Otherwise, create it through [BotFather](https://t.me/BotFather).
-   You'll go through step-by-step instructions, give a bot __username__ and most importantly, obtain a bot __token__.
+   You'll go through step-by-step instructions, give a bot **username** and most importantly, obtain a bot **token**.
    Save this token for future use. **Note:** in order to make your bot hear raw text messages (not commands), you must
    disable [privacy mode](https://core.telegram.org/bots#privacy-mode) option which is on by default. Go through bot's
    settings: **Bot Settings -> Group Privacy** and click **Turn Off**.
 
 3. Next, you need to tell plugin about your new bot. You can either:
-    - Run Paper server, plugin will log `"No config file found! Saving default one."`. After that, stop server and
-      proceed to 4th step.
-    -
-    Copy [config.yml](https://raw.githubusercontent.com/pbl0/paper-telegram-bridge/master/src/main/resources/config.yml)
-    to `plugins/PaperTelegramBridge/` in your server directory.
+
+   - Run Paper server, plugin will log `"No config file found! Saving default one."`. After that, stop server and
+     proceed to 4th step.
+   - Copy [config.yml](https://raw.githubusercontent.com/pbl0/paper-telegram-bridge/master/src/main/resources/config.yml)
+     to `plugins/PaperTelegramBridge/` in your server directory.
 
 4. A `config.yml` is just a [valid YAML](https://en.wikipedia.org/wiki/YAML) file, alternative for JSON, but more
    human-readable.
-   Now, take bot's __token__ which you got in 2nd step and paste them into `config.yml`, so it looks like this:
+   Now, take bot's **token** which you got in 2nd step and paste them into `config.yml`, so it looks like this:
+
    ```yaml
    botToken: abcdefghijklmnopq123123123
    # other configuration values...
@@ -38,16 +38,17 @@ Download from [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge), [m
 5. Run Paper server.
 
 6. Add you bot to chats, where you plan to use it. In each of them, run `/chat_id` command. The bot should respond and
-   give special value - __chat id__. Now, open `config.yml` and paste this ID under `chats` section, so it will look
+   give special value - **chat id**. Now, open `config.yml` and paste this ID under `chats` section, so it will look
    like this:
-    ```yaml
-    botToken: abcdefghijklmnopq123123123
-    chats: [
-      -123456789,
-      987654321,
-      # other chat id's...
-    ]
-    ```
+
+   ```yaml
+   botToken: abcdefghijklmnopq123123123
+   chats: [
+       -123456789,
+       987654321,
+       # other chat id's...
+     ]
+   ```
 
 7. You can extend `config.yml` with more tweaks, which are described in the table below, but it's not necessary, plugin
    will use default values instead, if they're missing. Also, check out the [example](src/main/resources/config.yml).
@@ -57,7 +58,7 @@ Download from [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge), [m
 ## Plugin configuration:
 
 |         Field          | Description                                                                                      |          Type          |      Required      |         Default          |
-|:----------------------:|:-------------------------------------------------------------------------------------------------|:----------------------:|:------------------:|:------------------------:|
+| :--------------------: | :----------------------------------------------------------------------------------------------- | :--------------------: | :----------------: | :----------------------: |
 |         enable         | If plugin should be enabled                                                                      |       `boolean`        |        :x:         |          `true`          |
 |        botToken        | Telegram bot token ([How to create bot](https://core.telegram.org/bots#3-how-do-i-create-a-bot)) |        `string`        | :heavy_check_mark: |            -             |
 |         chats          | Chats, where bot will work (to prevent using bot by unknown chats)                               | `number[] or string[]` | :heavy_check_mark: |           `[]`           |
@@ -69,7 +70,7 @@ Download from [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge), [m
 |     logPlayerDeath     | If true, plugin will send message to Telegram if player died                                     |       `boolean`        |        :x:         |         `false`          |
 |    logPlayerAsleep     | If true, plugin will send message to Telegram if player fell asleep                              |       `boolean`        |        :x:         |         `false`          |
 |  logPlayerAdvancement  | If true, plugin will send message to Telegram if player gets an advancement                      |       `boolean`        |        :x:         |          `true`          |
-|      logInventory      | If true, plugin will send image of inventory, item or ender chest  [Read more](#Inventory)       |       `boolean`        |        :x:         |          `true`          |
+|      logInventory      | If true, plugin will send image of inventory, item or ender chest [Read more](#Inventory)        |       `boolean`        |        :x:         |          `true`          |
 |        strings         | Dictionary of tokens - strings for plugin i18n                                                   | `Map<string, string>`  |        :x:         |    See default config    |
 |        commands        | Dictionary of command text used in Telegram bot                                                  | `Map<string, string>`  | :heavy_check_mark: |        See below         |
 | telegramMessageFormat  | Format string for TGtoMC chat message                                                            |        `string`        |        :x:         |    See default config    |
@@ -83,7 +84,7 @@ Download from [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge), [m
 Commands are customizable through config. If command doesn't exist in config, it will be disabled
 
 |  Command   | Description                                                           |
-|:----------:|:----------------------------------------------------------------------|
+| :--------: | :-------------------------------------------------------------------- |
 | `/online`  | Get players, currently online                                         |
 |  `/time`   | Get [time](https://minecraft.gamepedia.com/Day-night_cycle) on server |
 | `/chat_id` | Get current chat ID (in which command was run) for config.yml         |
@@ -107,13 +108,13 @@ This feature is related to [this issue](https://github.com/kraftwerk28/spigot-tg
 ## Plugin commands:
 
 |      Command      | Description                                                                                |
-|:-----------------:|:-------------------------------------------------------------------------------------------|
+| :---------------: | :----------------------------------------------------------------------------------------- |
 | `tgbridge_reload` | Reload plugin configuration w/o need to stop the server. Works only through server console |
 
 ## Permissions
 
 |         Permission          | Description                                                                                                                           |
-|:---------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------|
+| :-------------------------: | :------------------------------------------------------------------------------------------------------------------------------------ |
 | `tg-bridge.silentjoinleave` | When set to **true** the bot won't send join and leave messages for that player. It will also be hidden from the **/online** command. |
 
 ## Inventory
@@ -124,3 +125,14 @@ Commands implemented:
 - [inv]
 - [item]
 - [ender]
+
+## Minecraft assets
+
+In this repository won't include the minecraft icons required to build the plugin for the inventory and advancements rendering features.
+This icons can be generated using the mod [IconExporter](https://github.com/CyclopsMC/IconExporter) and running in-game this command:
+
+```
+/iconexporter export 64
+```
+
+Some icons, like potions, require renaming. The resulting .png files need to be placed `src/main/resources/textures`.

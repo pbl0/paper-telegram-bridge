@@ -26,4 +26,4 @@ if ! mv -f "$JAR_FILE" "$PLUGINS_DIR"; then
     exit 1
 fi
 
-podman exec mcserver-paper mc-send-to-console plugman reload PaperTelegramBridge;
+podman exec --user 1000 mcserver-paper-test mc-send-to-console plugman reload PaperTelegramBridge;

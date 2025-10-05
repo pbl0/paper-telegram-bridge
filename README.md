@@ -50,10 +50,20 @@ Download from [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge), [m
      ]
    ```
 
-7. You can extend `config.yml` with more tweaks, which are described in the table below, but it's not necessary, plugin
+7. (Optional) To enable admin commands like `/whitelist`, you need to add Telegram user IDs to the `admins` list in `config.yml`.
+
+   ```yaml
+   admins: [
+       123456789,
+       987654321,
+       # other admin user ids...
+     ]
+   ```
+
+8. You can extend `config.yml` with more tweaks, which are described in the table below, but it's not necessary, plugin
    will use default values instead, if they're missing. Also, check out the [example](src/main/resources/config.yml).
 
-8. Re-run server or type `tgbridge_reload` into server's console.
+9. Re-run server or type `tgbridge_reload` into server's console.
 
 ## Plugin configuration:
 
@@ -62,6 +72,7 @@ Download from [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge), [m
 |         enable         | If plugin should be enabled                                                                      |       `boolean`        |        :x:         |          `true`          |
 |        botToken        | Telegram bot token ([How to create bot](https://core.telegram.org/bots#3-how-do-i-create-a-bot)) |        `string`        | :heavy_check_mark: |            -             |
 |         chats          | Chats, where bot will work (to prevent using bot by unknown chats)                               | `number[] or string[]` | :heavy_check_mark: |           `[]`           |
+|         admins         | List of Telegram user IDs authorized to use admin commands like `/whitelist`                     | `number[] or string[]` |        :x:         |           `[]`           |
 |   serverStartMessage   | What will be sent to chats when server starts                                                    |        `string`        |        :x:         |   `'Server started.'`    |
 |   serverStopMessage    | What will be sent to chats when server stops                                                     |        `string`        |        :x:         |   `'Server stopped.'`    |
 |      logJoinLeave      | If true, plugin will send corresponding messages to chats, when player joins or leaves server    |       `boolean`        |        :x:         |          `true`          |
@@ -71,6 +82,7 @@ Download from [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge), [m
 |    logPlayerAsleep     | If true, plugin will send message to Telegram if player fell asleep                              |       `boolean`        |        :x:         |         `false`          |
 |  logPlayerAdvancement  | If true, plugin will send message to Telegram if player gets an advancement                      |       `boolean`        |        :x:         |          `true`          |
 |      logInventory      | If true, plugin will send image of inventory, item or ender chest [Read more](#Inventory)        |       `boolean`        |        :x:         |          `true`          |
+|    logWhitelistKick    | If true, plugin will send notification when a player is kicked due to not being whitelisted      |       `boolean`        |        :x:         |          `true`          |
 |        strings         | Dictionary of tokens - strings for plugin i18n                                                   | `Map<string, string>`  |        :x:         |    See default config    |
 |        commands        | Dictionary of command text used in Telegram bot                                                  | `Map<string, string>`  | :heavy_check_mark: |        See below         |
 | telegramMessageFormat  | Format string for TGtoMC chat message                                                            |        `string`        |        :x:         |    See default config    |
@@ -83,11 +95,12 @@ Download from [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge), [m
 
 Commands are customizable through config. If command doesn't exist in config, it will be disabled
 
-|  Command   | Description                                                           |
-| :--------: | :-------------------------------------------------------------------- |
-| `/online`  | Get players, currently online                                         |
-|  `/time`   | Get [time](https://minecraft.gamepedia.com/Day-night_cycle) on server |
-| `/chat_id` | Get current chat ID (in which command was run) for config.yml         |
+|   Command    | Description                                                                            |
+| :----------: | :------------------------------------------------------------------------------------- |
+|  `/online`   | Get players, currently online                                                          |
+|   `/time`    | Get [time](https://minecraft.gamepedia.com/Day-night_cycle) on server                  |
+|  `/chat_id`  | Get current chat ID (in which command was run) for config.yml                          |
+| `/whitelist` | (Admin only) Manage server whitelist - list whitelisted players or add/remove a player |
 
 ## Format string:
 
@@ -125,6 +138,15 @@ Commands implemented:
 - [inv]
 - [item]
 - [ender]
+
+## Whitelist Management
+
+Server admins can manage the whitelist directly from Telegram using the `/whitelist` command:
+
+- `/whitelist` - List all whitelisted players
+- `/whitelist <player_name>` - Toggle whitelist status for a player (add if not whitelisted, remove if already whitelisted)
+
+This command is only available to users listed in the `admins` configuration field. The plugin will also send notifications when players try to join but are kicked due to not being whitelisted (configurable via `logWhitelistKick`).
 
 ## Minecraft assets
 

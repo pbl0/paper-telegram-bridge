@@ -62,19 +62,19 @@ class TgBot(
             online to ::onlineHandler,
             time to ::timeHandler,
             chatID to ::chatIdHandler,
+            whitelist to ::whitelistHandler
         )
     }
 
 
     private suspend fun initialize() {
         me = api.getMe().result!!
-        // I intentionally don't put optional @username in regex
-        // since bot is only used in group chats
-        commandRegex = """^/(\w+)@${me!!.username}(?:\s+(.+))?$""".toRegex()
-        val commands = config.commands.run { listOf(time, online, chatID) }
+        // Make @username optional so commands work without bot tag in groups
+        commandRegex = """^/(\w+)(?:@${me!!.username})?(?:\s+(.+))?$""".toRegex()
+        val commands = config.commands.run { listOf(time, online, chatID, whitelist) }
             .zip(
                 C.CommandDesc.run {
-                    listOf(TIME_DESC, ONLINE_DESC, CHAT_ID_DESC)
+                    listOf(TIME_DESC, ONLINE_DESC, CHAT_ID_DESC, WHITELIST_DESC)
                 }
             )
             .map { BotCommand(it.first!!, it.second) }
@@ -248,6 +248,30 @@ class TgBot(
                 e.printStackTrace()
             }
         }
+    }
+
+    suspend fun whitelistHandler(ctx: HandlerContext){
+        val msg = ctx.message!!
+        if (!config.admins.contains(msg.from?.id)) {
+            return
+        }
+        val wl = Whitelist(plugin)
+        // val notAdminText = "You aren't allowed to run this command."
+
+        println(msg.text)
+        var text = ""
+        val parts = msg.text!!.split(" ")
+        if (parts.size <= 1) {
+            // No player name provided, list all whitelisted players
+            text = wl.getWhitelistedNames().toString()
+        } else {
+            // Player name provided, toggle their whitelist status
+            val playerName = parts[1]
+            val gotAdded = wl.toggleWhitelist(playerName)
+            text = "${if (gotAdded) "\uD83D\uDFE9" else "\uD83D\uDFE5"} $playerName got ${if (gotAdded) "added to" else "removed from"} the whitelist."
+        }
+        api.sendMessage(msg.chat.id, text, replyToMessageId = msg.messageId)
+
     }
 
     suspend fun sendPhotoToTelegram(imageBytes: ByteArray, caption: String) {

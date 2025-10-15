@@ -2,7 +2,7 @@
 
 A fork from [spigot-tg-bridge](https://github.com/kraftwerk28/spigot-tg-bridge) with some new features.
 
-Download from [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge), [modrinth](http://modrinth.com/plugin/paper-telegram-bridge) or from [releases page](https://github.com/pbl0/paper-telegram-bridge/releases).
+Download from [modrinth](http://modrinth.com/plugin/paper-telegram-bridge), [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge) or from [releases page](https://github.com/pbl0/paper-telegram-bridge/releases).
 
 ![image](https://github.com/user-attachments/assets/1a6f61c0-9563-49c6-8cf6-7658fbd4c005)
 

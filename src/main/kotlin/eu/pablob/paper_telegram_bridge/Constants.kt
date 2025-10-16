@@ -31,5 +31,6 @@ object Constants {
         const val TIME_DESC = "Get time on server"
         const val ONLINE_DESC = "Get players online"
         const val CHAT_ID_DESC = "Get current chat id"
+        const val WHITELIST_DESC = "Toggle whitelist status or list whitelisted players"
     }
 }

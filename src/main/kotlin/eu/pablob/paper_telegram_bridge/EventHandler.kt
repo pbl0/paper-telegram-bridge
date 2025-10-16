@@ -80,6 +80,19 @@ class EventHandler(
         sendMessage(text)
     }
 
+    @EventHandler
+    fun onPlayerLogin(event: PlayerLoginEvent) {
+        if (!config.logWhitelistKick) return
+        // Check if login was disallowed due to whitelist
+        if (event.result == PlayerLoginEvent.Result.KICK_WHITELIST) {
+            val username = event.player.name.fullEscape()
+            val kickMessage = PlainTextComponentSerializer.plainText().serialize(event.kickMessage())
+            val text = "⚠️ <i>$username</i> tried to join but was kicked: $kickMessage"
+            plugin.logger.info("Sending whitelist kick message to Telegram for $username")
+            sendMessage(text)
+        }
+    }
+
     private fun sendMessage(text: String, username: String? = null) = plugin.launch {
         tgBot.sendMessageToTelegram(text, username)
     }
@@ -153,6 +166,7 @@ class EventHandler(
                 if (item.type.name.lowercase() == "written_book" || item.type.name.lowercase() == "writable_book") {
                     val (bookDirectory, caption) = BookRenderer(plugin).renderBookToFile(item)
                     if (bookDirectory != null) {
+                        // TODO: handle more than one group chat!!
                         tgBot.sendImageWithKeyboard(config.allowedChats[0], 1, bookDirectory, caption)
                     }
                     return@launch

@@ -22,6 +22,7 @@ class Configuration(plugin: Plugin) : YamlConfiguration() {
     val logPlayerAsleep: Boolean
     val logPlayerAdvancement: Boolean
     val logInventory: Boolean
+    val logWhitelistKick: Boolean
     val onlineString: String
     val nobodyOnlineString: String
     val silentMessages: Boolean?
@@ -30,9 +31,11 @@ class Configuration(plugin: Plugin) : YamlConfiguration() {
     val challengeString: String
     val deathString: String
 
+
     // Telegram bot stuff
     val botToken: String
     val allowedChats: List<Long>
+    val admins:  List<Long>
     val logFromTGtoMC: Boolean
     private val allowWebhook: Boolean
     private val webhookConfig: Map<String, Any>?
@@ -146,6 +149,7 @@ class Configuration(plugin: Plugin) : YamlConfiguration() {
         logPlayerAsleep = getBoolean("logPlayerAsleep", false)
         logPlayerAdvancement = getBoolean("logPlayerAdvancement", false)
         logInventory = getBoolean("logInventory", false)
+        logWhitelistKick = getBoolean("logWhitelistKick", true)
         advancementString =
             getString(
                 "strings.advancement",
@@ -168,5 +172,6 @@ class Configuration(plugin: Plugin) : YamlConfiguration() {
         silentMessages = getBoolean("silentMessages").let { if (!it) null else true }
         apiOrigin = getString("apiOrigin", "https://api.telegram.org")!!
         debugHttp = getBoolean("debugHttp", false)
+        admins = getLongList("admins")
     }
 }

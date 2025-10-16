@@ -4,7 +4,7 @@ A fork from [spigot-tg-bridge](https://github.com/kraftwerk28/spigot-tg-bridge) 
 
 Download from [modrinth](http://modrinth.com/plugin/paper-telegram-bridge), [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge) or from [releases page](https://github.com/pbl0/paper-telegram-bridge/releases).
 
-![image](https://github.com/user-attachments/assets/1a6f61c0-9563-49c6-8cf6-7658fbd4c005)
+![image](img/paper-telegram-bridge.png)
 
 ### This plugin will send chat messages from Minecraft to Telegram, and from Telegram to Minecraft.
 

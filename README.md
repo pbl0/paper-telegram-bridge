@@ -1,4 +1,4 @@
-# Paper <-> Telegram bridge plugin
+# Paper Telegram Bridge
 
 A fork from [spigot-tg-bridge](https://github.com/kraftwerk28/spigot-tg-bridge) with some new features.
 

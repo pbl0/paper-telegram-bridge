@@ -2,7 +2,7 @@
 
 A fork from [spigot-tg-bridge](https://github.com/kraftwerk28/spigot-tg-bridge) with some new features.
 
-Download from [modrinth](http://modrinth.com/plugin/paper-telegram-bridge), [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge) or from [releases page](https://github.com/pbl0/paper-telegram-bridge/releases).
+Download from [modrinth](http://modrinth.com/plugin/paper-telegram-bridge), [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge) or from the [releases page](https://github.com/pbl0/paper-telegram-bridge/releases).
 
 ![image](img/paper-telegram-bridge.png)
 
@@ -10,7 +10,7 @@ Download from [modrinth](http://modrinth.com/plugin/paper-telegram-bridge), [han
 
 ## How to use:
 
-1. Download .jar file from [releases page](https://github.com/pbl0/paper-telegram-bridge/releases), and put it in
+1. Download .jar file from [modrinth](http://modrinth.com/plugin/paper-telegram-bridge), and put it in
    `plugins/` directory on your server **OR** clone this repo and run `gradle` inside repo's directory.
 
 2. If you already have telegram bot, skip this step. Otherwise, create it through [BotFather](https://t.me/BotFather).
@@ -139,6 +139,8 @@ Commands implemented:
 - [item]
 - [ender]
 
+![sharing a book example](img/book.png)
+
 ## Whitelist Management
 
 Server admins can manage the whitelist directly from Telegram using the `/whitelist` command:
@@ -147,6 +149,8 @@ Server admins can manage the whitelist directly from Telegram using the `/whitel
 - `/whitelist <player_name>` - Toggle whitelist status for a player (add if not whitelisted, remove if already whitelisted)
 
 This command is only available to users listed in the `admins` configuration field. The plugin will also send notifications when players try to join but are kicked due to not being whitelisted (configurable via `logWhitelistKick`).
+
+![whitelist example](img/whitelist.png)
 
 ## Minecraft assets
 

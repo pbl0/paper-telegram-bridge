@@ -10,7 +10,7 @@ Download from [modrinth](http://modrinth.com/plugin/paper-telegram-bridge), [han
 
 ## How to use:
 
-1. Download .jar file from [releases page](https://github.com/pbl0/paper-telegram-bridge/releases), and put it in
+1. Download from [modrinth](http://modrinth.com/plugin/paper-telegram-bridge) and put it in
    `plugins/` directory on your server **OR** clone this repo and run `gradle` inside repo's directory.
 
 2. If you already have telegram bot, skip this step. Otherwise, create it through [BotFather](https://t.me/BotFather).

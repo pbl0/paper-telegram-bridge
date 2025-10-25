@@ -8,3 +8,7 @@ commands:
   tgbridge_reload:
     description: "Reload paper-telegram-bridge plugin"
     usage: /<command>
+permissions:
+  tg-bridge.silentjoinleave:
+    description: Hide Player from join/leave and online list
+    default: false

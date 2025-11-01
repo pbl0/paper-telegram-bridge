@@ -98,7 +98,7 @@ Commands are customizable through config. If command doesn't exist in config, it
 |   Command    | Description                                                                            |
 | :----------: | :------------------------------------------------------------------------------------- |
 |  `/online`   | Get players, currently online                                                          |
-|   `/time`    | Get [time](https://minecraft.gamepedia.com/Day-night_cycle) on server                  |
+|   `/time`    | Get [time](https://minecraft.wiki/w/Daylight_cycle) on server                  |
 |  `/chat_id`  | Get current chat ID (in which command was run) for config.yml                          |
 | `/whitelist` | (Admin only) Manage server whitelist - list whitelisted players or add/remove a player |
 

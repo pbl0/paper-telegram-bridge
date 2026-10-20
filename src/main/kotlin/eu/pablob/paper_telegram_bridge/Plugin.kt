@@ -45,6 +45,9 @@ class Plugin : AsyncJavaPlugin() {
         getCommand(C.COMMANDS.PLUGIN_RELOAD)?.run {
             setExecutor(CommandHandler(this@Plugin))
         }
+        getCommand(C.COMMANDS.TG_BROADCAST)?.run {
+            setExecutor(CommandHandler(this@Plugin))
+        }
         config.serverStartMessage?.let {
             tgBot?.sendMessageToTelegram(it)
         }
@@ -81,6 +84,14 @@ class Plugin : AsyncJavaPlugin() {
                 } ?: this
             }
             .also { server.broadcast(Component.text(it)) }
+    }
+
+    fun announceToTelegram(message: String, username: String? = null) {
+        val bot = tgBot ?: return
+
+        launch {
+            bot.sendMessageToTelegram(message, username)
+        }
     }
 
     suspend fun reload() {

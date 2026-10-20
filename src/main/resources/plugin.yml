@@ -8,6 +8,10 @@ commands:
   tgbridge_reload:
     description: "Reload paper-telegram-bridge plugin"
     usage: /<command>
+  tgbroadcast:
+    description: "Broadcast a message in Minecraft and Telegram"
+    usage: /<command> <message>
+    permission: bukkit.command.say
 permissions:
   tg-bridge.silentjoinleave:
     description: Hide Player from join/leave and online list

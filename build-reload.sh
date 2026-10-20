@@ -12,7 +12,7 @@ if [[ -z "$VERSION" || -z "$API_VERSION" ]]; then
 fi
 
 # Build the project with Gradle
-if ! gradle; then
+if ! ./gradlew; then
     echo "Gradle build failed. Exiting."
     exit 1
 fi

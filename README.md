@@ -123,6 +123,7 @@ This feature is related to [this issue](https://github.com/kraftwerk28/spigot-tg
 |      Command      | Description                                                                                |
 | :---------------: | :----------------------------------------------------------------------------------------- |
 | `tgbridge_reload` | Reload plugin configuration w/o need to stop the server. Works only through server console |
+|   `tgbroadcast`   | Broadcast a message to all Minecraft players and configured Telegram chats; usable by players, command blocks, and datapacks with the `bukkit.command.say` permission |
 
 ## Permissions
 
@@ -152,9 +153,9 @@ This command is only available to users listed in the `admins` configuration fie
 
 ![whitelist example](img/whitelist.png)
 
-## Minecraft assets
+## Minecraft assets (development-only)
 
-In this repository won't include the minecraft icons required to build the plugin for the inventory and advancements rendering features.
+This repository won't include the minecraft icons required to build the plugin for the inventory and advancements rendering features.
 This icons can be generated using the mod [IconExporter](https://github.com/CyclopsMC/IconExporter) and running in-game this command:
 
 ```

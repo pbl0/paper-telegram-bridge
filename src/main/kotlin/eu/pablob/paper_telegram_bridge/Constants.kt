@@ -25,6 +25,7 @@ object Constants {
 
     object COMMANDS {
         const val PLUGIN_RELOAD = "tgbridge_reload"
+        const val TG_BROADCAST = "tgbroadcast"
     }
 
     object CommandDesc {

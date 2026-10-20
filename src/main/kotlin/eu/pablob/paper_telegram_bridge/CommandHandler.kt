@@ -1,5 +1,6 @@
 package eu.pablob.paper_telegram_bridge
 
+import net.kyori.adventure.text.Component
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
@@ -11,12 +12,19 @@ class CommandHandler(private val plugin: Plugin) : CommandExecutor {
         sender: CommandSender,
         command: Command,
         label: String,
-        args: Array<out String>
+        args: Array<out String>,
     ): Boolean {
-        if (sender !is ConsoleCommandSender) return false
-        return when (label) {
+        return when (command.name) {
             C.COMMANDS.PLUGIN_RELOAD -> {
+                if (sender !is ConsoleCommandSender) return false
                 plugin.launch { plugin.reload() }
+                true
+            }
+
+            C.COMMANDS.TG_BROADCAST -> {
+                val message = args.joinToString(" ").takeIf { it.isNotBlank() } ?: return false
+                plugin.server.broadcast(Component.text("[${sender.name}] $message"))
+                plugin.announceToTelegram(message, sender.name)
                 true
             }
 

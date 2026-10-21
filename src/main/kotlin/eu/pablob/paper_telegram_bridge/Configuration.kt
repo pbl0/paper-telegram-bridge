@@ -35,6 +35,7 @@ class Configuration(plugin: Plugin) : YamlConfiguration() {
     // Telegram bot stuff
     val botToken: String
     val allowedChats: List<Long>
+    val allowedTopics: List<Long>
     val admins:  List<Long>
     val logFromTGtoMC: Boolean
     private val allowWebhook: Boolean
@@ -83,7 +84,7 @@ class Configuration(plugin: Plugin) : YamlConfiguration() {
                     }
                     pathKey.cancel()
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 plugin.logger.info("Failed to set up watch on config file")
             }
         }
@@ -127,6 +128,7 @@ class Configuration(plugin: Plugin) : YamlConfiguration() {
         )!!
         // isEnabled = getBoolean("enable", true)
         allowedChats = getLongList("chats")
+        allowedTopics = getLongList("topics")
 
         botToken = getString("botToken") ?: throw Exception(C.WARN.NO_TOKEN)
         allowWebhook = getBoolean("useWebhook", false)

@@ -21,6 +21,7 @@ interface TgApiService {
         @Query("chat_id") chatId: Long,
         @Query("text") text: String,
         @Query("reply_to_message_id") replyToMessageId: Long? = null,
+        @Query("message_thread_id") messageThreadId: Long? = null,
         @Query("disable_notification") disableNotification: Boolean? = null,
     ): TgResponse<Message>
 
@@ -46,6 +47,7 @@ interface TgApiService {
         @Part photo: MultipartBody.Part,
         @Part("caption") caption: RequestBody? = null,
         @Part("reply_to_message_id") replyToMessageId: Long? = null,
+        @Part("message_thread_id") messageThreadId: Long? = null,
         @Part("disable_notification") disableNotification: Boolean? = null,
         @Part("reply_markup") replyMarkup: RequestBody? = null
     ): TgResponse<Message>

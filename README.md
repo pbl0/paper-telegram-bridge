@@ -68,10 +68,11 @@ Download from [modrinth](http://modrinth.com/plugin/paper-telegram-bridge), [han
 ## Plugin configuration:
 
 |         Field          | Description                                                                                      |          Type          |      Required      |         Default          |
-| :--------------------: | :----------------------------------------------------------------------------------------------- | :--------------------: | :----------------: | :----------------------: |
+| :--------------------: |:-------------------------------------------------------------------------------------------------| :--------------------: | :----------------: | :----------------------: |
 |         enable         | If plugin should be enabled                                                                      |       `boolean`        |        :x:         |          `true`          |
 |        botToken        | Telegram bot token ([How to create bot](https://core.telegram.org/bots#3-how-do-i-create-a-bot)) |        `string`        | :heavy_check_mark: |            -             |
 |         chats          | Chats, where bot will work (to prevent using bot by unknown chats)                               | `number[] or string[]` | :heavy_check_mark: |           `[]`           |
+|         topics         | Telegram forum topics, if left empty it will use the General topic.                              | `number[] or string[]` |        :x:         |           `[]`           |
 |         admins         | List of Telegram user IDs authorized to use admin commands like `/whitelist`                     | `number[] or string[]` |        :x:         |           `[]`           |
 |   serverStartMessage   | What will be sent to chats when server starts                                                    |        `string`        |        :x:         |   `'Server started.'`    |
 |   serverStopMessage    | What will be sent to chats when server stops                                                     |        `string`        |        :x:         |   `'Server stopped.'`    |

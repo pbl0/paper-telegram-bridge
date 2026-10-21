@@ -1,6 +1,7 @@
 enable: true
 botToken: abcdef123456789
 chats: []
+topics: []
 admins: []
 serverStartMessage: "Server started."
 serverStopMessage: "Server stopped."

@@ -166,8 +166,7 @@ class EventHandler(
                 if (item.type.name.lowercase() == "written_book" || item.type.name.lowercase() == "writable_book") {
                     val (bookDirectory, caption) = BookRenderer(plugin).renderBookToFile(item)
                     if (bookDirectory != null) {
-                        // TODO: handle more than one group chat!!
-                        tgBot.sendImageWithKeyboard(config.allowedChats[0], 1, bookDirectory, caption)
+                        tgBot.sendImageWithKeyboard(1, bookDirectory, caption)
                     }
                     return@launch
                 } else if (item.type.name.lowercase() == "shulker_box") {

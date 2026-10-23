@@ -141,16 +141,25 @@ class TgBot(
             return
         }
         // Accept only these chat types
-        if (!listOf("group", "supergroup").contains(update.message?.chat?.type))
+        val message = update.message ?: return
+        if (message.chat.type !in listOf("group", "supergroup")) return
+
+        val isTopicMessage = message.isTopicMessage == true || message.messageThreadId != null
+        val topicId = message.messageThreadId ?: 1L
+        val allowedTopics = config.allowedTopics
+        if (
+            (allowedTopics.isEmpty() && isTopicMessage) ||
+            (allowedTopics.isNotEmpty() && !isTopicMessage && topicId !in allowedTopics)
+        ) {
             return
+        }
 
         // Check whether the chat is white-listed in config
-        if (!config.allowedChats.contains(update.message?.chat?.id))
-            return
+        if (message.chat.id !in config.allowedChats) return
 
 
-        val ctx = HandlerContext(update, update.message, update.message?.chat)
-        update.message?.text?.let {
+        val ctx = HandlerContext(update, message, message.chat)
+        message.text?.let {
             commandRegex?.matchEntire(it)?.groupValues?.let { matchList ->
                 commandMap[matchList[1]]?.let { handler ->
                     val commandArgs = matchList[2].split("""\s+""".toRegex())
@@ -172,7 +181,8 @@ class TgBot(
             api.sendMessage(
                 msg.chat.id,
                 "No worlds available",
-                replyToMessageId = msg.messageId
+                replyToMessageId = msg.messageId,
+                messageThreadId = msg.messageThreadId
             )
             return
         }
@@ -187,7 +197,12 @@ class TgBot(
                 else -> ""
             }
         } + " ($time)"
-        api.sendMessage(msg.chat.id, text, replyToMessageId = msg.messageId)
+        api.sendMessage(
+            msg.chat.id,
+            text,
+            replyToMessageId = msg.messageId,
+            messageThreadId = msg.messageThreadId
+        )
     }
 
     private suspend fun onlineHandler(ctx: HandlerContext) {
@@ -203,7 +218,12 @@ class TgBot(
         val text =
             if (visiblePlayers.isNotEmpty()) "${config.onlineString}:\n$playerStr"
             else config.nobodyOnlineString
-        api.sendMessage(msg.chat.id, text, replyToMessageId = msg.messageId)
+        api.sendMessage(
+            msg.chat.id,
+            text,
+            replyToMessageId = msg.messageId,
+            messageThreadId = msg.messageThreadId
+        )
     }
 
     private suspend fun chatIdHandler(ctx: HandlerContext) {
@@ -219,7 +239,12 @@ class TgBot(
         |]
         |</pre>
         """.trimMargin()
-        api.sendMessage(chatId, text, replyToMessageId = msg.messageId)
+        api.sendMessage(
+            chatId,
+            text,
+            replyToMessageId = msg.messageId,
+            messageThreadId = msg.messageThreadId
+        )
     }
 
     private fun onTextHandler(
@@ -241,16 +266,28 @@ class TgBot(
                 .replace(C.USERNAME_PLACEHOLDER, username.fullEscape())
                 .replace(C.MESSAGE_TEXT_PLACEHOLDER, text.escapeHtml())
         } ?: text
-        config.allowedChats.forEach { chatId ->
+        telegramDestinations().forEach { (chatId, topicId) ->
             try {
-                api.sendMessage(chatId, formatted, disableNotification = config.silentMessages)
+                api.sendMessage(
+                    chatId,
+                    formatted,
+                    messageThreadId = topicId,
+                    disableNotification = config.silentMessages
+                )
+            } catch (e: HttpException) {
+                val errorBody = e.response()?.errorBody()?.string()
+                plugin.logger.warning(
+                    "Telegram sendMessage failed for chat $chatId" +
+                            (topicId?.let { ", topic $it" } ?: "") +
+                            ": ${errorBody ?: e.message()}"
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    suspend fun whitelistHandler(ctx: HandlerContext){
+    suspend fun whitelistHandler(ctx: HandlerContext) {
         val msg = ctx.message!!
         if (!config.admins.contains(msg.from?.id)) {
             return
@@ -259,7 +296,7 @@ class TgBot(
         // val notAdminText = "You aren't allowed to run this command."
 
         println(msg.text)
-        var text = ""
+        var text: String
         val parts = msg.text!!.split(" ")
         if (parts.size <= 1) {
             // No player name provided, list all whitelisted players
@@ -268,9 +305,15 @@ class TgBot(
             // Player name provided, toggle their whitelist status
             val playerName = parts[1]
             val gotAdded = wl.toggleWhitelist(playerName)
-            text = "${if (gotAdded) "\uD83D\uDFE9" else "\uD83D\uDFE5"} $playerName got ${if (gotAdded) "added to" else "removed from"} the whitelist."
+            text =
+                "${if (gotAdded) "\uD83D\uDFE9" else "\uD83D\uDFE5"} $playerName got ${if (gotAdded) "added to" else "removed from"} the whitelist."
         }
-        api.sendMessage(msg.chat.id, text, replyToMessageId = msg.messageId)
+        api.sendMessage(
+            msg.chat.id,
+            text,
+            replyToMessageId = msg.messageId,
+            messageThreadId = msg.messageThreadId
+        )
 
     }
 
@@ -279,12 +322,13 @@ class TgBot(
         val photoPart = MultipartBody.Part.createFormData("photo", "image.png", requestBody)
         val text = caption.toRequestBody("text/plain".toMediaTypeOrNull())
 
-        config.allowedChats.forEach { chatId ->
+        telegramDestinations().forEach { (chatId, topicId) ->
             try {
                 api.sendPhoto(
                     chatId = chatId,
                     photo = photoPart,
                     caption = text,
+                    messageThreadId = topicId,
                     disableNotification = config.silentMessages
                 )
             } catch (e: HttpException) {
@@ -305,46 +349,46 @@ class TgBot(
             return JSONObject().apply {
                 put(
                     "inline_keyboard", listOf(
-                    listOf(
-                        JSONObject().apply {
-                            put("text", "Next ➡️")
-                            put("callback_data", nextCallbackData)
-                        }
-                    )
-                ))
+                        listOf(
+                            JSONObject().apply {
+                                put("text", "Next ➡️")
+                                put("callback_data", nextCallbackData)
+                            }
+                        )
+                    ))
             }.toString()
         } else if (isLastPage) {
             return JSONObject().apply {
                 put(
                     "inline_keyboard", listOf(
-                    listOf(
-                        JSONObject().apply {
-                            put("text", "⬅️ Back")
-                            put("callback_data", prevCallbackData)
-                        }
-                    )
-                ))
+                        listOf(
+                            JSONObject().apply {
+                                put("text", "⬅️ Back")
+                                put("callback_data", prevCallbackData)
+                            }
+                        )
+                    ))
             }.toString()
         }
         return JSONObject().apply {
             put(
                 "inline_keyboard", listOf(
                     listOf(
-                    JSONObject().apply {
-                        put("text", "⬅️ Back")
-                        put("callback_data", prevCallbackData)
-                    },
-                    JSONObject().apply {
-                        put("text", "Next ➡️")
-                        put("callback_data", nextCallbackData)
-                    }
-                )
-            ))
+                        JSONObject().apply {
+                            put("text", "⬅️ Back")
+                            put("callback_data", prevCallbackData)
+                        },
+                        JSONObject().apply {
+                            put("text", "Next ➡️")
+                            put("callback_data", nextCallbackData)
+                        }
+                    )
+                ))
         }.toString()
     }
 
 
-    suspend fun sendImageWithKeyboard(chatId: Long, imageIndex: Int, imageDirectory: File, caption: String?) {
+    suspend fun sendImageWithKeyboard(imageIndex: Int, imageDirectory: File, caption: String?) {
         val imageFile = File(imageDirectory, "page$imageIndex.png")
         val totalPages = imageDirectory.listFiles { file -> file.name.endsWith(".png") }?.size ?: 1
         val isLastPage = imageIndex == totalPages
@@ -356,27 +400,47 @@ class TgBot(
 
         // Manually create the JSON string for the inline keyboard
         var keyboardJson = ""
-        if (!isLastPage){
-            keyboardJson = createInlineKeyboardJson("prev_$imageIndex-$bookHash", "next_$imageIndex-$bookHash", true, isLastPage)
+        if (!isLastPage) {
+            keyboardJson = createInlineKeyboardJson(
+                "prev_$imageIndex-$bookHash", "next_$imageIndex-$bookHash",
+                isFirstPage = true,
+                isLastPage = false
+            )
         }
         // Convert the JSON string to a RequestBody
         val replyMarkupBody = keyboardJson.toRequestBody("application/json".toMediaTypeOrNull())
 
-        try {
-            api.sendPhoto(
-                chatId = chatId,
-                photo = photoPart,
-                replyMarkup = replyMarkupBody, // Pass the JSON as a RequestBody
-                caption = caption?.toRequestBody("text/plain".toMediaTypeOrNull()),
-                disableNotification = config.silentMessages
-            )
-        } catch (e: HttpException) {
-            val errorBody = e.response()?.errorBody()?.string()
-            println("Telegram API error: $errorBody")
+        telegramDestinations().forEach { (chatId, topicId) ->
+            try {
+                api.sendPhoto(
+                    chatId = chatId,
+                    photo = photoPart,
+                    replyMarkup = replyMarkupBody, // Pass the JSON as a RequestBody
+                    caption = caption?.toRequestBody("text/plain".toMediaTypeOrNull()),
+                    messageThreadId = topicId,
+                    disableNotification = config.silentMessages
+                )
+            } catch (e: HttpException) {
+                val errorBody = e.response()?.errorBody()?.string()
+                println("Telegram API error: $errorBody")
+            }
         }
     }
 
-    suspend fun editImageWithKeyboard(chatId: Long, messageId: Long, imageIndex: Int, imageDirectory: File, hash: String) {
+    private fun telegramDestinations(): List<Pair<Long, Long?>> {
+        val topicIds = config.allowedTopics.ifEmpty { listOf<Long?>(null) }
+        return config.allowedChats.flatMap { chatId ->
+            topicIds.map { topicId -> chatId to topicId }
+        }
+    }
+
+    suspend fun editImageWithKeyboard(
+        chatId: Long,
+        messageId: Long,
+        imageIndex: Int,
+        imageDirectory: File,
+        hash: String
+    ) {
         val imageFile = File(imageDirectory, "page$imageIndex.png")
         val totalPages = imageDirectory.listFiles { file -> file.name.endsWith(".png") }?.size ?: 1
 
@@ -386,7 +450,8 @@ class TgBot(
         val requestBody = imageFile.asRequestBody("image/png".toMediaTypeOrNull())
         val photoPart = MultipartBody.Part.createFormData("media", imageFile.name, requestBody)
 
-        val keyboardJson = createInlineKeyboardJson("prev_$imageIndex-$hash", "next_$imageIndex-$hash", isFirstPage, isLastPage)
+        val keyboardJson =
+            createInlineKeyboardJson("prev_$imageIndex-$hash", "next_$imageIndex-$hash", isFirstPage, isLastPage)
         val replyMarkupBody = keyboardJson.toRequestBody("application/json".toMediaTypeOrNull())
 
         val mediaJson = """
@@ -427,7 +492,7 @@ class TgBot(
         }
 
         // Edit the existing message instead of sending a new one
-        editImageWithKeyboard(chatId, messageId, currentImageIndex, File(plugin.dataFolder,"inv/books/$hash"), hash)
+        editImageWithKeyboard(chatId, messageId, currentImageIndex, File(plugin.dataFolder, "inv/books/$hash"), hash)
 
         // Acknowledge the callback query
         api.answerCallbackQuery(callbackQuery.id)

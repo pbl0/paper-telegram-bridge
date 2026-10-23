@@ -13,7 +13,7 @@ fun loadItemTexture(itemName: String, javaClass: Class<out Any>): BufferedImage?
         inputStream?.let {
             ImageIO.read(it)
         }
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         null
     }
 }
@@ -43,7 +43,7 @@ fun loadImage(path: String, javaClass: Class<out Any>): BufferedImage? {
         inputStream?.let {
             ImageIO.read(it)
         }
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         null
     }
 }

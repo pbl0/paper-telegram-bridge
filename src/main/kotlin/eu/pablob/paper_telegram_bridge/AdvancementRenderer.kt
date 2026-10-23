@@ -9,7 +9,6 @@ import javax.imageio.ImageIO
 class AdvancementRenderer {
     private val width = 320
     private val height = 64
-    private val borderColor = Color(78, 78, 78)
     private val titleColor = Color(234, 234, 2)
     private val fontSize = 16f
 

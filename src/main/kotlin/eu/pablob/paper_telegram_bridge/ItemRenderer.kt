@@ -112,7 +112,7 @@ class ItemRenderer {
 
     private fun getItemName(item: ItemStack, displayName: String?): String {
         val itemTypeName = item.type.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
-        return if (!displayName.isNullOrEmpty()) "$displayName" else itemTypeName
+        return if (!displayName.isNullOrEmpty()) displayName else itemTypeName
     }
 
     private fun determineNameColor(item: ItemStack): Color {

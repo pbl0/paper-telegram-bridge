@@ -144,32 +144,25 @@ class TgBot(
         val message = update.message ?: return
         if (message.chat.type !in listOf("group", "supergroup")) return
 
-        val isTopicMessage = message.isTopicMessage == true || message.messageThreadId != null
-        val topicId = message.messageThreadId ?: 1L
-        val allowedTopics = config.allowedTopics
-        if (
-            (allowedTopics.isEmpty() && isTopicMessage) ||
-            (allowedTopics.isNotEmpty() && !isTopicMessage && topicId !in allowedTopics)
-        ) {
-            return
-        }
+        val topicId = message.messageThreadId.takeIf { message.isTopicMessage == true } ?: 1L
+        val allowedTopics = config.allowedTopics.ifEmpty { listOf(1L) }
+        println(message)
+        if (topicId !in allowedTopics) return
 
         // Check whether the chat is white-listed in config
         if (message.chat.id !in config.allowedChats) return
 
-
         val ctx = HandlerContext(update, message, message.chat)
-        message.text?.let {
-            commandRegex?.matchEntire(it)?.groupValues?.let { matchList ->
-                commandMap[matchList[1]]?.let { handler ->
-                    val commandArgs = matchList[2].split("""\s+""".toRegex())
-                    val handlerContext = ctx.copy(commandArgs = commandArgs)
-                    handler(handlerContext)
-                }
-            } ?: run {
-                onTextHandler(ctx)
-            }
+        val text = message.text ?: message.caption ?: return
+        val commandMatch = message.text?.let { commandRegex?.matchEntire(it) }
+        val commandHandler = commandMatch?.groupValues?.let { commandMap[it[1]] }
+        if (commandMatch != null && commandHandler != null) {
+            commandHandler(
+                ctx.copy(commandArgs = commandMatch.groupValues[2].split("""\s+""".toRegex()))
+            )
+            return
         }
+        onTextHandler(ctx, text)
     }
 
     private suspend fun timeHandler(ctx: HandlerContext) {
@@ -248,13 +241,14 @@ class TgBot(
     }
 
     private fun onTextHandler(
-        ctx: HandlerContext
+        ctx: HandlerContext,
+        text: String,
     ) {
         val msg = ctx.message!!
         if (!config.logFromTGtoMC || msg.from == null)
             return
         plugin.sendMessageToMinecraft(
-            text = msg.text!!,
+            text = text,
             username = msg.from.rawUserMention(),
             chatTitle = msg.chat.title,
         )

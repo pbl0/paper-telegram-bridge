@@ -34,6 +34,7 @@ data class Message(
     val chat: Chat,
     @Name("reply_to_message") val replyToMessage: Message? = null,
     val text: String? = null,
+    val caption: String? = null,
     @Name("reply_markup") val replyMarkup: InlineKeyboardMarkup? = null, // Inline keyboard attached to the message
     @Name("is_topic_message") val isTopicMessage: Boolean? = null,
     @Name("message_thread_id") val messageThreadId: Long? = null
@@ -66,4 +67,3 @@ data class InlineKeyboardButton(
 data class BotCommand(val command: String, val description: String)
 
 data class SetMyCommands(val commands: List<BotCommand>)
-

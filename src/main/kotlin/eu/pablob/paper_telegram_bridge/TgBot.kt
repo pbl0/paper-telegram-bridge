@@ -146,7 +146,6 @@ class TgBot(
 
         val topicId = message.messageThreadId.takeIf { message.isTopicMessage == true } ?: 1L
         val allowedTopics = config.allowedTopics.ifEmpty { listOf(1L) }
-        println(message)
         if (topicId !in allowedTopics) return
 
         // Check whether the chat is white-listed in config

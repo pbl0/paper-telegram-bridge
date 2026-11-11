@@ -1,6 +1,6 @@
 # Paper Telegram Bridge
 
-A fork from [spigot-tg-bridge](https://github.com/kraftwerk28/spigot-tg-bridge) with some new features.
+A fork from [spigot-tg-bridge](https://github.com/kraftwerk28/spigot-tg-bridge) (GPLv3) with some new features.
 
 Download from [modrinth](http://modrinth.com/plugin/paper-telegram-bridge), [hangar](https://hangar.papermc.io/pbl0/paper-telegram-bridge)
 or from the [releases page](https://github.com/pbl0/paper-telegram-bridge/releases).
@@ -24,13 +24,10 @@ or from the [releases page](https://github.com/pbl0/paper-telegram-bridge/releas
 
     - Run Paper server, plugin will log `"No config file found! Saving default one."`. After that, stop server and
       proceed to 4th step.
-    -
-    Copy [config.yml](https://raw.githubusercontent.com/pbl0/paper-telegram-bridge/master/src/main/resources/config.yml)
-    to `plugins/PaperTelegramBridge/` in your server directory.
+    - Copy default [config.yml](https://raw.githubusercontent.com/pbl0/paper-telegram-bridge/master/src/main/resources/config.yml)
+    to your `plugins/PaperTelegramBridge/` in your server directory.
 
-4. A `config.yml` is just a [valid YAML](https://en.wikipedia.org/wiki/YAML) file, alternative for JSON, but more
-   human-readable.
-   Now, take bot's **token** which you got in 2nd step and paste them into `config.yml`, so it looks like this:
+4. Now, take your bot's **token** which you got in 2nd step and paste it into `config.yml`, so it looks like this:
 
    ```yaml
    botToken: abcdefghijklmnopq123123123
@@ -64,7 +61,7 @@ or from the [releases page](https://github.com/pbl0/paper-telegram-bridge/releas
    ```
 
 8. You can extend `config.yml` with more tweaks, which are described in the table below, but it's not necessary, plugin
-   will use default values instead, if they're missing. Also, check out the [example](src/main/resources/config.yml).
+   will use default values instead, if they're missing. Also, check out the [default config](src/main/resources/config.yml).
 
 9. Re-run server or type `tgbridge_reload` into server's console.
 
@@ -180,7 +177,7 @@ Accepted values: %username%, %waypointName%, %world%, %x%, %y%, %z% and %raw% (f
 
 This repository won't include the Minecraft icons required to build the plugin for the inventory and advancements
 rendering features.
-This icons can be generated using the mod [IconExporter](https://github.com/CyclopsMC/IconExporter) and running in-game
+This icons can be generated using the mod [IconExporter](https://github.com/CyclopsMC/IconExporter) (MIT) and running in-game
 this command:
 
 ```
